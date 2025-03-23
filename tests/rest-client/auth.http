@@ -1,0 +1,22 @@
+@resource = auth
+
+### Đăng nhập
+POST {{baseURL}}/{{resource}}/login
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+    "username": "admin",
+    "password": "anhemiit@123"
+}
+
+###
+
+### Làm mới token
+POST {{baseURL}}/{{resource}}/token/refresh
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+    "refreshToken": "{{refreshToken}}"
+}

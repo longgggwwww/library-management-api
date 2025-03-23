@@ -1,0 +1,4 @@
+// Ping to the server
+
+GET {{baseURL}}
+x-api-key: {{apiKey}}

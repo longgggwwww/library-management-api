@@ -1,0 +1,20 @@
+@resource = permissions
+
+### Lấy danh sách quyền
+GET {{baseURL}}/{{resource}}
+x-api-key: {{apiKey}}
+Authorization: Bearer {{accessToken}}
+
+###
+
+### Tạo quyền mới
+POST {{baseURL}}/{{resource}}
+Content-Type: application/json
+x-api-key: {{apiKey}}
+
+{
+    "name": "new_permission",
+    "description": "Description of the permission"
+}
+
+###

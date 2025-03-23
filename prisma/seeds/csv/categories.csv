@@ -1,0 +1,32 @@
+branch_code,code,name
+cng,ai,Trí Tuệ Nhân Tạo
+cng,cs,Khoa Học Máy Tính
+cng,ml,Học Máy
+iit,anthropology,Nhân Học
+iit,economics,Kinh Tế Học
+iit,essay,Tiểu Luận
+iit,magazine,Tạp Chí
+iit,math,Toán Học
+iit,newspaper,Báo
+iit,paper,Bài Báo
+iit,political-science,Khoa Học Chính Trị
+iit,psychology,Tâm Lý Học
+iit,report,Báo Cáo
+iit,social-sciences,Khoa Học Xã Hội
+iit,sociology,Xã Hội Học
+iit,thesis,Luận Văn
+iit,martial-arts,Võ Hiệp
+lit,fiction,Hư Cấu
+lit,literature,Văn Học
+lit,martial-arts,Võ Hiệp
+lit,non-fiction,Không Hư Cấu
+lit,novel,Tiểu Thuyết
+sci,astronomy,Thiên Văn Học
+sci,biology,Sinh Học
+sci,chemistry,Hóa Học
+sci,cosmology,Vũ Trụ Học
+sci,environmental-science,Khoa Học Môi Trường
+sci,fiction,Hư Cấu
+sci,geology,Địa Chất
+sci,non-fiction,Không Hư Cấu
+sci,physics,Vật Lý

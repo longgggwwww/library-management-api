@@ -1,0 +1,5 @@
+branch_code,inventory_receipt_code,publication_code,quantity,condition_code
+iit,math-receipt-01,math-2021,10,NEW
+iit,math-receipt-01,math2000,10,LIKE_NEW
+iit,math-receipt-01,math2005,10,GOOD
+iit,math-receipt-02,math2010,10,FAIR

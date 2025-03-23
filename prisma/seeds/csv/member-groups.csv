@@ -1,0 +1,5 @@
+branch_code,code,name,max_borrowed_items,max_borrowed_days,max_borrowed_requests,descrition
+iit,hs,"Học sinh",5,7,5,"Học sinh trường IIT có thể mượn tối đa 5 sách trong 7 ngày và có thể yêu cầu mượn tối đa 5 lần."
+iit,gv,"Giáo viên",10,14,10,"Giáo viên trường IIT có thể mượn tối đa 10 sách trong 14 ngày và có thể yêu cầu mượn tối đa 10 lần."
+cng,hs,"Học sinh",5,7,5,"Học sinh trường CNG có thể mượn tối đa 5 sách trong 7 ngày và có thể yêu cầu mượn tối đa 5 lần."
+cng,gv,"Giáo viên",10,14,10,"Giáo viên trường CNG có thể mượn tối đa 10 sách trong 14 ngày và có thể yêu cầu mượn tối đa 10 lần."

@@ -1,0 +1,25 @@
+branch_code,code,name,description,parent_code
+cng,cs,Khoa học máy tính,Sách liên quan đến khoa học máy tính,
+sci,sci,Khoa học,Sách liên quan đến các lĩnh vực khoa học khác nhau,
+lit,lit,Văn học,Sách liên quan đến văn học,
+iit,iit,Liên ngành,Sách liên quan đến các chủ đề liên ngành,
+cng,ai,Trí tuệ nhân tạo,Sách liên quan đến trí tuệ nhân tạo,
+cng,ml,Học máy,Sách liên quan đến học máy,ai
+cng,prog,Lập trình,Sách liên quan đến lập trình,ai
+cng,alg,Thuật toán,Sách liên quan đến thuật toán,ai
+sci,phy,Vật lý,Sách liên quan đến vật lý,
+sci,chem,Hóa học,Sách liên quan đến hóa học,
+sci,bio,Sinh học,Sách liên quan đến sinh học,
+sci,astro,Thiên văn học,Sách liên quan đến thiên văn học,
+sci,geo,Địa chất học,Sách liên quan đến địa chất học,
+sci,env,Khoa học môi trường,Sách liên quan đến khoa học môi trường,
+lit,novel,Tiểu thuyết,Sách liên quan đến tiểu thuyết,
+lit,martial-arts,Võ hiệp,Tiểu thuyết võ hiệp cổ điển,novel
+lit,classic,Kinh điển,Văn học kinh điển,
+iit,math,Toán học,Sách liên quan đến toán học,
+iit,soc,Xã hội học,Sách liên quan đến xã hội học,
+iit,psy,Tâm lý học,Sách liên quan đến tâm lý học,
+iit,anth,Nhân học,Sách liên quan đến nhân học,
+iit,eco,Kinh tế học,Sách liên quan đến kinh tế học,
+iit,pol,Khoa học chính trị,Sách liên quan đến khoa học chính trị,
+iit,novel,Tiểu thuyết,Sách liên quan đến tiểu thuyết,

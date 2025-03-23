@@ -1,0 +1,6 @@
+branch_code,code,name,description
+iit,economics,Kho Kinh Tế ,"Kho lưu trữ các sách về kinh tế"
+iit,mathematics,Kho Toán Học,"Kho lưu trữ các sách về toán học"
+cng,cs,Kho Công Nghệ Thông Tin,"Kho lưu trữ các sách về công nghệ thông tin"
+sci,science,Kho Khoa Học,"Kho lưu trữ các sách về khoa học"
+lit,literature,Kho Văn Học,"Kho lưu trữ các sách về văn học"

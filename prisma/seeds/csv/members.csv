@@ -1,0 +1,6 @@
+branch_code,VNeID,full_name,email,phone,password,birth_day,is_locked,gender,class_code,school_year_code,group_code,avatar
+iit,012345678901,Nguyen Van A,nguyenvana@example.com,0901234567,123456,1990-01-01,false,MALE,1a,2022-2023,hs,nguyen-van-a
+iit,098765432109,Tran Thi B,tranthib@example.com,0912345678,123456,1992-02-02,false,FEMALE,1a,2022-2023,gv,tran-thi-b
+iit,123456789012,Le Van C,levanc@example.com,0923456789,123456,1995-03-03,true,MALE,1b,2020-2021,gv,le-van-c
+cng,987654321098,Pham Thi D,phamthid@example.com,0934567890,123456,1998-04-04,false,FEMALE,2c,2020-2021,hs,pham-thi-d
+cng,567890123456,Hoang Van E,hoangvane@example.com,0945678901,123456,2000-05-05,true,MALE,2d,2022-2023,gv,hoang-van-e

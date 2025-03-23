@@ -1,0 +1,533 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Branch {
+  id                Int                @id @default(autoincrement())
+  code              String             @unique
+  name              String
+  logoUrl           String?
+  address           String?
+  phone             String?
+  email             String?
+  website           String?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  authors           Author[]
+  borrwings         Borrowing[]
+  categories        Category[]
+  classes           Class[]
+  genres            Genre[]
+  hashtags          Hashtag[]
+  inventories       Inventory[]
+  inventoryReceipts InventoryReceipt[]
+  items             Item[]
+  itemConditions    ItemCondition[]
+  languages         Language[]
+  members           Member[]
+  memberGroups      MemberGroup[]
+  publications      Publication[]
+  publishers        Publisher[]
+  schoolYears       SchoolYear[]
+  shelves           Shelf[]
+  users             User[]
+}
+
+model MemberGroup {
+  id                Int              @id @default(autoincrement())
+  code              String
+  name              String
+  branchId          Int?
+  maxBorrowedItems  Int
+  maxBorrowDays     Int
+  maxBorrowRequests Int
+  description       String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  accountPackages   AccountPackage[]
+  members           Member[]
+  branch            Branch?          @relation(fields: [branchId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "MemberGroup_branchId_fkey")
+}
+
+model AccountPackage {
+  id               Int         @id @default(autoincrement())
+  code             String
+  name             String
+  fee              Int
+  durationInMonths Int
+  description      String?
+  memberGroupId    Int
+  memberGroup      MemberGroup @relation(fields: [memberGroupId], references: [id])
+
+  @@unique([code, memberGroupId])
+  @@index([memberGroupId], map: "AccountPackage_memberGroupId_fkey")
+}
+
+model Member {
+  id            Int          @id @default(autoincrement())
+  VNeID         String       @unique
+  email         String       @unique
+  phone         String       @unique
+  password      String
+  branchId      Int?
+  classId       Int?
+  schoolYearId  Int?
+  groupId       Int?
+  birthDate     DateTime?
+  fullName      String
+  avatarUrl     String?
+  isLocked      Boolean      @default(true)
+  gender        Gender
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  borrowings    Borrowing[]
+  borrowedItems Item[]
+  branch        Branch?      @relation(fields: [branchId], references: [id])
+  class         Class?       @relation(fields: [classId], references: [id])
+  group         MemberGroup? @relation(fields: [groupId], references: [id])
+  schoolYear    SchoolYear?  @relation(fields: [schoolYearId], references: [id])
+
+  @@index([branchId], map: "Member_branchId_fkey")
+  @@index([classId], map: "Member_classId_fkey")
+  @@index([groupId], map: "Member_groupId_fkey")
+  @@index([schoolYearId], map: "Member_schoolYearId_fkey")
+}
+
+model Class {
+  id        Int      @id @default(autoincrement())
+  code      String
+  name      String
+  branchId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+  members   Member[]
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Class_branchId_fkey")
+}
+
+model SchoolYear {
+  id        Int      @id @default(autoincrement())
+  code      String
+  name      String
+  branchId  Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   Member[]
+  branch    Branch?  @relation(fields: [branchId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "SchoolYear_branchId_fkey")
+}
+
+model Borrowing {
+  id           Int       @id @default(autoincrement())
+  code         String
+  borrowerId   Int
+  inventoryId  Int
+  borrowedDate DateTime
+  returnDate   DateTime
+  itemId       Int       @unique
+  branchId     Int?
+  borrower     Member    @relation(fields: [borrowerId], references: [id])
+  branch       Branch?   @relation(fields: [branchId], references: [id])
+  inventory    Inventory @relation("InventoryToBorrowing", fields: [inventoryId], references: [id])
+  item         Item      @relation(fields: [itemId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([borrowerId], map: "Borrowing_borrowerId_fkey")
+  @@index([branchId], map: "Borrowing_branchId_fkey")
+  @@index([inventoryId], map: "Borrowing_inventoryId_fkey")
+}
+
+model Inventory {
+  id                Int                @id @default(autoincrement())
+  code              String
+  name              String
+  branchId          Int?
+  description       String?
+  borrwings         Borrowing[]        @relation("InventoryToBorrowing")
+  branch            Branch?            @relation(fields: [branchId], references: [id])
+  inventoryReceipts InventoryReceipt[]
+  items             Item[]
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Inventory_branchId_fkey")
+}
+
+model Shelf {
+  id          Int     @id @default(autoincrement())
+  code        String
+  name        String
+  branchId    Int?
+  description String?
+  items       Item[]
+  racks       Rack[]
+  branch      Branch? @relation(fields: [branchId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Shelf_branchId_fkey")
+}
+
+model Rack {
+  id          Int     @id @default(autoincrement())
+  code        String
+  name        String
+  shelfId     Int?
+  description String?
+  items       Item[]
+  shelf       Shelf?  @relation(fields: [shelfId], references: [id])
+
+  @@unique([code, shelfId])
+  @@index([shelfId], map: "Rack_shelfId_fkey")
+}
+
+model Item {
+  id                                            Int                          @id @default(autoincrement())
+  barcode                                       String
+  branchId                                      Int?
+  publicationId                                 Int?
+  borrowerId                                    Int?
+  createdByUserId                               Int?
+  status                                        InventoryItemStatus          @default(AVAILABLE)
+  shelfId                                       Int?
+  rackId                                        Int?
+  inventoryId                                   Int?
+  conditionId                                   Int?
+  isShelved                                     Boolean                      @default(false)
+  description                                   String?
+  createdAt                                     DateTime                     @default(now())
+  updatedAt                                     DateTime                     @updatedAt
+  inventoryReceiptPublicationPublicationId      Int?
+  inventoryReceiptPublicationInventoryReceiptId Int?
+  browwing                                      Borrowing?
+  borrower                                      Member?                      @relation(fields: [borrowerId], references: [id])
+  branch                                        Branch?                      @relation(fields: [branchId], references: [id])
+  condition                                     ItemCondition?               @relation(fields: [conditionId], references: [id])
+  createdByUser                                 User?                        @relation(fields: [createdByUserId], references: [id])
+  inventory                                     Inventory?                   @relation(fields: [inventoryId], references: [id])
+  inventoryReceiptPublication                   InventoryReceiptPublication? @relation(fields: [inventoryReceiptPublicationPublicationId, inventoryReceiptPublicationInventoryReceiptId], references: [publicationId, inventoryReceiptId])
+  publication                                   Publication?                 @relation(fields: [publicationId], references: [id])
+  rack                                          Rack?                        @relation(fields: [rackId], references: [id])
+  shelf                                         Shelf?                       @relation(fields: [shelfId], references: [id])
+
+  @@unique([barcode, branchId])
+  @@index([borrowerId], map: "Item_borrowerId_fkey")
+  @@index([branchId], map: "Item_branchId_fkey")
+  @@index([conditionId], map: "Item_conditionId_fkey")
+  @@index([createdByUserId], map: "Item_createdByUserId_fkey")
+  @@index([inventoryId], map: "Item_inventoryId_fkey")
+  @@index([inventoryReceiptPublicationPublicationId, inventoryReceiptPublicationInventoryReceiptId], map: "Item_inventoryReceiptPublicationPublicationId_inventoryRece_fkey")
+  @@index([publicationId], map: "Item_publicationId_fkey")
+  @@index([rackId], map: "Item_rackId_fkey")
+  @@index([shelfId], map: "Item_shelfId_fkey")
+}
+
+model ItemCondition {
+  id          Int      @id @default(autoincrement())
+  code        String
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  color       String?
+  percentage  Int?
+  branchId    Int?
+  items       Item[]
+  branch      Branch?  @relation(fields: [branchId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "ItemCondition_branchId_fkey")
+}
+
+model InventoryReceipt {
+  id                           Int                           @id @default(autoincrement())
+  code                         String
+  title                        String
+  branchId                     Int?
+  createdByUserId              Int?
+  inventoryId                  Int?
+  description                  String?
+  supplier                     String?
+  status                       InventoryReceiptStatus        @default(PENDING)
+  createdAt                    DateTime                      @default(now())
+  updatedAt                    DateTime                      @updatedAt
+  branch                       Branch?                       @relation(fields: [branchId], references: [id])
+  createdByUser                User?                         @relation(fields: [createdByUserId], references: [id])
+  inventory                    Inventory?                    @relation(fields: [inventoryId], references: [id])
+  inventoryReceiptPublications InventoryReceiptPublication[]
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "InventoryReceipt_branchId_fkey")
+  @@index([createdByUserId], map: "InventoryReceipt_createdByUserId_fkey")
+  @@index([inventoryId], map: "InventoryReceipt_inventoryId_fkey")
+}
+
+model InventoryReceiptPublication {
+  publicationId      Int
+  inventoryReceiptId Int
+  quantity           Int
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  inventoryReceipt   InventoryReceipt @relation(fields: [inventoryReceiptId], references: [id])
+  publication        Publication      @relation(fields: [publicationId], references: [id])
+  items              Item[]
+
+  @@id([publicationId, inventoryReceiptId])
+  @@index([inventoryReceiptId], map: "InventoryReceiptPublication_inventoryReceiptId_fkey")
+}
+
+model Publication {
+  id                          Int                           @id @default(autoincrement())
+  createdByUserId             Int?
+  branchId                    Int?
+  publisherId                 Int?
+  title                       String
+  coverUrl                    String?
+  slug                        String
+  isPublished                 Boolean                       @default(true)
+  type                        PublicationType
+  summary                     String?
+  isbn                        String?                       @unique
+  publishedDate               DateTime?
+  fileUrl                     String?
+  fileSize                    Int?
+  code                        String
+  translator                  String?
+  volumeNumber                Int?
+  coverPrice                  Float?
+  pageCount                   Int?
+  createdAt                   DateTime                      @default(now())
+  updatedAt                   DateTime                      @updatedAt
+  hashtags                    Hashtag[]
+  inventoryReceptPublications InventoryReceiptPublication[]
+  items                       Item[]
+  branch                      Branch?                       @relation(fields: [branchId], references: [id])
+  createdByUser               User?                         @relation(fields: [createdByUserId], references: [id])
+  publisher                   Publisher?                    @relation(fields: [publisherId], references: [id])
+  publicationAlias            PublicationAlias[]
+  authors                     Author[]                      @relation("AuthorToPublication")
+  genres                      Genre[]                       @relation("GenreToPublication")
+  languages                   Language[]                    @relation("LanguageToPublication")
+  categories                  Category[]                    @relation("PublicationToCategory")
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Publication_branchId_fkey")
+  @@index([createdByUserId], map: "Publication_createdByUserId_fkey")
+  @@index([publisherId], map: "Publication_publisherId_fkey")
+}
+
+model PublicationAlias {
+  id            Int         @id @default(autoincrement())
+  alias         String
+  publicationId Int
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([publicationId], map: "PublicationAlias_publicationId_fkey")
+}
+
+model Author {
+  id           Int           @id @default(autoincrement())
+  code         String
+  name         String
+  birthYear    Int?
+  deathYear    Int?
+  nationality  String?
+  photoUrl     String?
+  description  String?
+  branchId     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  publications Publication[] @relation("AuthorToPublication")
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Author_branchId_fkey")
+}
+
+model Publisher {
+  id              Int           @id @default(autoincrement())
+  code            String
+  branchId        Int?
+  createdByUserId Int?
+  name            String
+  phone           String?
+  email           String?
+  address         String?
+  note            String?
+  photoUrl        String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  publications    Publication[]
+  branch          Branch?       @relation(fields: [branchId], references: [id])
+  createdByUser   User?         @relation(fields: [createdByUserId], references: [id])
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Publisher_branchId_fkey")
+  @@index([createdByUserId], map: "Publisher_createdByUserId_fkey")
+}
+
+model Category {
+  id           Int           @id @default(autoincrement())
+  name         String
+  code         String
+  branchId     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  publications Publication[] @relation("PublicationToCategory")
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Category_branchId_fkey")
+}
+
+model Genre {
+  id           Int           @id @default(autoincrement())
+  code         String
+  name         String
+  branchId     Int?
+  parentId     Int?
+  description  String?
+  updatedAt    DateTime      @updatedAt
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  parent       Genre?        @relation("GenreRelation", fields: [parentId], references: [id])
+  children     Genre[]       @relation("GenreRelation")
+  publications Publication[] @relation("GenreToPublication")
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Genre_branchId_fkey")
+  @@index([parentId], map: "Genre_parentId_fkey")
+}
+
+model Hashtag {
+  id            Int         @id @default(autoincrement())
+  name          String
+  publicationId Int
+  branchId      Int?
+  branch        Branch?     @relation(fields: [branchId], references: [id])
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+
+  @@index([branchId], map: "Hashtag_branchId_fkey")
+  @@index([publicationId], map: "Hashtag_publicationId_fkey")
+}
+
+model Language {
+  id           Int           @id @default(autoincrement())
+  code         String
+  name         String
+  branchId     Int?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  branch       Branch?       @relation(fields: [branchId], references: [id])
+  publications Publication[] @relation("LanguageToPublication")
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Language_branchId_fkey")
+}
+
+model User {
+  id                Int                @id @default(autoincrement())
+  branchId          Int?
+  roleId            Int?
+  username          String             @unique
+  password          String
+  address           String?
+  birthDate         DateTime?
+  email             String
+  fullName          String
+  note              String?
+  phone             String
+  avatarUrl         String?
+  isActive          Boolean            @default(true)
+  isAdmin           Boolean?           @default(false)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  inventoryReceipts InventoryReceipt[]
+  createdItems      Item[]
+  createdPubs       Publication[]
+  createdPublishers Publisher[]
+  branch            Branch?            @relation(fields: [branchId], references: [id])
+  role              Role?              @relation(fields: [roleId], references: [id])
+
+  @@index([branchId], map: "User_branchId_fkey")
+  @@index([roleId], map: "User_roleId_fkey")
+}
+
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String
+  code        String       @unique
+  color       String?
+  description String?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  settings    Setting[]    @relation("RoleToSetting")
+  users       User[]
+  permissions Permission[] @relation("PermissionToRole")
+}
+
+model Permission {
+  id          String           @id @unique
+  name        String
+  description String?
+  groupId     Int?
+  group       PermissionGroup? @relation("PermissionToGroup", fields: [groupId], references: [id])
+  roles       Role[]           @relation("PermissionToRole")
+
+  @@index([groupId], map: "Permission_groupId_fkey")
+}
+
+model PermissionGroup {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique
+  name        String
+  description String?
+  permissions Permission[] @relation("PermissionToGroup")
+}
+
+model Setting {
+  id                Int   @id @default(autoincrement())
+  defaultUserRoleId Int?
+  defaultUserRole   Role? @relation("RoleToSetting", fields: [defaultUserRoleId], references: [id])
+
+  @@index([defaultUserRoleId], map: "Setting_defaultUserRoleId_fkey")
+}
+
+enum Gender {
+  MALE
+  FEMALE
+}
+
+enum InventoryItemStatus {
+  AVAILABLE
+  BORROWED
+  RETURNED
+  OVERDUE
+}
+
+enum InventoryReceiptStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+enum PublicationType {
+  PRINT
+  DIGITAL
+  BOTH
+}

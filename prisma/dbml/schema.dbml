@@ -1,0 +1,628 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table Branch {
+  id Int [pk, increment]
+  code String [unique, not null]
+  name String [not null]
+  logoUrl String
+  address String
+  phone String
+  email String
+  website String
+  isActive Boolean [not null, default: true]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  authors Author [not null]
+  borrwings Borrowing [not null]
+  categories Category [not null]
+  classes Class [not null]
+  genres Genre [not null]
+  hashtags Hashtag [not null]
+  inventories Inventory [not null]
+  inventoryReceipts InventoryReceipt [not null]
+  items Item [not null]
+  itemConditions ItemCondition [not null]
+  languages Language [not null]
+  members Member [not null]
+  memberGroups MemberGroup [not null]
+  publications Publication [not null]
+  publishers Publisher [not null]
+  schoolYears SchoolYear [not null]
+  shelves Shelf [not null]
+  users User [not null]
+}
+
+Table MemberGroup {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  maxBorrowedItems Int [not null]
+  maxBorrowDays Int [not null]
+  maxBorrowRequests Int [not null]
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  accountPackages AccountPackage [not null]
+  members Member [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table AccountPackage {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  fee Int [not null]
+  durationInMonths Int [not null]
+  description String
+  memberGroupId Int [not null]
+  memberGroup MemberGroup [not null]
+
+  indexes {
+    (code, memberGroupId) [unique]
+  }
+}
+
+Table Member {
+  id Int [pk, increment]
+  VNeID String [unique, not null]
+  email String [unique, not null]
+  phone String [unique, not null]
+  password String [not null]
+  branchId Int
+  classId Int
+  schoolYearId Int
+  groupId Int
+  birthDate DateTime
+  fullName String [not null]
+  avatarUrl String
+  isLocked Boolean [not null, default: true]
+  gender Gender [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  borrowings Borrowing [not null]
+  borrowedItems Item [not null]
+  branch Branch
+  class Class
+  group MemberGroup
+  schoolYear SchoolYear
+}
+
+Table Class {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  members Member [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table SchoolYear {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  members Member [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Borrowing {
+  id Int [pk, increment]
+  code String [not null]
+  borrowerId Int [not null]
+  inventoryId Int [not null]
+  borrowedDate DateTime [not null]
+  returnDate DateTime [not null]
+  itemId Int [unique, not null]
+  branchId Int
+  borrower Member [not null]
+  branch Branch
+  inventory Inventory [not null]
+  item Item [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Inventory {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  description String
+  borrwings Borrowing [not null]
+  branch Branch
+  inventoryReceipts InventoryReceipt [not null]
+  items Item [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Shelf {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  description String
+  items Item [not null]
+  racks Rack [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Rack {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  shelfId Int
+  description String
+  items Item [not null]
+  shelf Shelf
+
+  indexes {
+    (code, shelfId) [unique]
+  }
+}
+
+Table Item {
+  id Int [pk, increment]
+  barcode String [not null]
+  branchId Int
+  publicationId Int
+  borrowerId Int
+  createdByUserId Int
+  status InventoryItemStatus [not null, default: 'AVAILABLE']
+  shelfId Int
+  rackId Int
+  inventoryId Int
+  conditionId Int
+  isShelved Boolean [not null, default: false]
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  inventoryReceiptPublicationPublicationId Int
+  inventoryReceiptPublicationInventoryReceiptId Int
+  browwing Borrowing
+  borrower Member
+  branch Branch
+  condition ItemCondition
+  createdByUser User
+  inventory Inventory
+  inventoryReceiptPublication InventoryReceiptPublication
+  publication Publication
+  rack Rack
+  shelf Shelf
+
+  indexes {
+    (barcode, branchId) [unique]
+  }
+}
+
+Table ItemCondition {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  color String
+  percentage Int
+  branchId Int
+  items Item [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table InventoryReceipt {
+  id Int [pk, increment]
+  code String [not null]
+  title String [not null]
+  branchId Int
+  createdByUserId Int
+  inventoryId Int
+  description String
+  supplier String
+  status InventoryReceiptStatus [not null, default: 'PENDING']
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  createdByUser User
+  inventory Inventory
+  inventoryReceiptPublications InventoryReceiptPublication [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table InventoryReceiptPublication {
+  publicationId Int [not null]
+  inventoryReceiptId Int [not null]
+  quantity Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  inventoryReceipt InventoryReceipt [not null]
+  publication Publication [not null]
+  items Item [not null]
+
+  indexes {
+    (publicationId, inventoryReceiptId) [pk]
+  }
+}
+
+Table Publication {
+  id Int [pk, increment]
+  createdByUserId Int
+  branchId Int
+  publisherId Int
+  title String [not null]
+  coverUrl String
+  slug String [not null]
+  isPublished Boolean [not null, default: true]
+  type PublicationType [not null]
+  summary String
+  isbn String [unique]
+  publishedDate DateTime
+  fileUrl String
+  fileSize Int
+  code String [not null]
+  translator String
+  volumeNumber Int
+  coverPrice Float
+  pageCount Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  hashtags Hashtag [not null]
+  inventoryReceptPublications InventoryReceiptPublication [not null]
+  items Item [not null]
+  branch Branch
+  createdByUser User
+  publisher Publisher
+  publicationAlias PublicationAlias [not null]
+  authors Author [not null]
+  genres Genre [not null]
+  languages Language [not null]
+  categories Category [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table PublicationAlias {
+  id Int [pk, increment]
+  alias String [not null]
+  publicationId Int [not null]
+  publication Publication [not null]
+}
+
+Table Author {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  birthYear Int
+  deathYear Int
+  nationality String
+  photoUrl String
+  description String
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  publications Publication [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Publisher {
+  id Int [pk, increment]
+  code String [not null]
+  branchId Int
+  createdByUserId Int
+  name String [not null]
+  phone String
+  email String
+  address String
+  note String
+  photoUrl String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  publications Publication [not null]
+  branch Branch
+  createdByUser User
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Category {
+  id Int [pk, increment]
+  name String [not null]
+  code String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  publications Publication [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Genre {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  parentId Int
+  description String
+  updatedAt DateTime [not null]
+  branch Branch
+  parent Genre
+  children Genre [not null]
+  publications Publication [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Hashtag {
+  id Int [pk, increment]
+  name String [not null]
+  publicationId Int [not null]
+  branchId Int
+  branch Branch
+  publication Publication [not null]
+}
+
+Table Language {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  publications Publication [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table User {
+  id Int [pk, increment]
+  branchId Int
+  roleId Int
+  username String [unique, not null]
+  password String [not null]
+  address String
+  birthDate DateTime
+  email String [not null]
+  fullName String [not null]
+  note String
+  phone String [not null]
+  avatarUrl String
+  isActive Boolean [not null, default: true]
+  isAdmin Boolean [default: false]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  inventoryReceipts InventoryReceipt [not null]
+  createdItems Item [not null]
+  createdPubs Publication [not null]
+  createdPublishers Publisher [not null]
+  branch Branch
+  role Role
+}
+
+Table Role {
+  id Int [pk, increment]
+  name String [not null]
+  code String [unique, not null]
+  color String
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  settings Setting [not null]
+  users User [not null]
+  permissions Permission [not null]
+}
+
+Table Permission {
+  id String [pk]
+  name String [not null]
+  description String
+  groupId Int
+  group PermissionGroup
+  roles Role [not null]
+}
+
+Table PermissionGroup {
+  id Int [pk, increment]
+  code String [unique, not null]
+  name String [not null]
+  description String
+  permissions Permission [not null]
+}
+
+Table Setting {
+  id Int [pk, increment]
+  defaultUserRoleId Int
+  defaultUserRole Role
+}
+
+Table AuthorToPublication {
+  authorsId Int [ref: > Author.id]
+  publicationsId Int [ref: > Publication.id]
+}
+
+Table GenreToPublication {
+  genresId Int [ref: > Genre.id]
+  publicationsId Int [ref: > Publication.id]
+}
+
+Table LanguageToPublication {
+  languagesId Int [ref: > Language.id]
+  publicationsId Int [ref: > Publication.id]
+}
+
+Table PublicationToCategory {
+  categoriesId Int [ref: > Category.id]
+  publicationsId Int [ref: > Publication.id]
+}
+
+Table PermissionToRole {
+  permissionsId String [ref: > Permission.id]
+  rolesId Int [ref: > Role.id]
+}
+
+Enum Gender {
+  MALE
+  FEMALE
+}
+
+Enum InventoryItemStatus {
+  AVAILABLE
+  BORROWED
+  RETURNED
+  OVERDUE
+}
+
+Enum InventoryReceiptStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CANCELLED
+}
+
+Enum PublicationType {
+  PRINT
+  DIGITAL
+  BOTH
+}
+
+Ref: MemberGroup.branchId > Branch.id
+
+Ref: AccountPackage.memberGroupId > MemberGroup.id
+
+Ref: Member.branchId > Branch.id
+
+Ref: Member.classId > Class.id
+
+Ref: Member.groupId > MemberGroup.id
+
+Ref: Member.schoolYearId > SchoolYear.id
+
+Ref: Class.branchId > Branch.id
+
+Ref: SchoolYear.branchId > Branch.id
+
+Ref: Borrowing.borrowerId > Member.id
+
+Ref: Borrowing.branchId > Branch.id
+
+Ref: Borrowing.inventoryId > Inventory.id
+
+Ref: Borrowing.itemId - Item.id
+
+Ref: Inventory.branchId > Branch.id
+
+Ref: Shelf.branchId > Branch.id
+
+Ref: Rack.shelfId > Shelf.id
+
+Ref: Item.borrowerId > Member.id
+
+Ref: Item.branchId > Branch.id
+
+Ref: Item.conditionId > ItemCondition.id
+
+Ref: Item.createdByUserId > User.id
+
+Ref: Item.inventoryId > Inventory.id
+
+Ref: Item.(inventoryReceiptPublicationPublicationId, inventoryReceiptPublicationInventoryReceiptId) > InventoryReceiptPublication.(publicationId, inventoryReceiptId)
+
+Ref: Item.publicationId > Publication.id
+
+Ref: Item.rackId > Rack.id
+
+Ref: Item.shelfId > Shelf.id
+
+Ref: ItemCondition.branchId > Branch.id
+
+Ref: InventoryReceipt.branchId > Branch.id
+
+Ref: InventoryReceipt.createdByUserId > User.id
+
+Ref: InventoryReceipt.inventoryId > Inventory.id
+
+Ref: InventoryReceiptPublication.inventoryReceiptId > InventoryReceipt.id
+
+Ref: InventoryReceiptPublication.publicationId > Publication.id
+
+Ref: Publication.branchId > Branch.id
+
+Ref: Publication.createdByUserId > User.id
+
+Ref: Publication.publisherId > Publisher.id
+
+Ref: PublicationAlias.publicationId > Publication.id [delete: Cascade]
+
+Ref: Author.branchId > Branch.id
+
+Ref: Publisher.branchId > Branch.id
+
+Ref: Publisher.createdByUserId > User.id
+
+Ref: Category.branchId > Branch.id
+
+Ref: Genre.branchId > Branch.id
+
+Ref: Genre.parentId - Genre.id
+
+Ref: Hashtag.branchId > Branch.id
+
+Ref: Hashtag.publicationId > Publication.id [delete: Cascade]
+
+Ref: Language.branchId > Branch.id
+
+Ref: User.branchId > Branch.id
+
+Ref: User.roleId > Role.id
+
+Ref: Permission.groupId > PermissionGroup.id
+
+Ref: Setting.defaultUserRoleId > Role.id

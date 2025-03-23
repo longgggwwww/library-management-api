@@ -1,0 +1,5 @@
+code,name,phone,email,address,photo,website
+iit,Thư viện IIT,0368909968,info@iit.vn,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",,"https://iit.vn"
+cng,Thư viện Công nghệ,0123456789,cng.lib@example.vn,"97 Võ Văn Tần, Quận 3, TP.HCM",,"https://cnglib.vn"
+lit,Thư viện Văn học,0987654321,lit.lib@example.vn,"55 Nguyễn Du, Quận 1, TP.HCM",,"https://litlib.vn"
+sci,Thư viện Khoa học,0369852147,sci.lib@example.vn,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",,"https://scilib.vn"

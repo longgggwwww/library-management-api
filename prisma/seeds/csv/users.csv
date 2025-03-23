@@ -1,0 +1,25 @@
+branch_code,username,password,is_active,is_admin,role_code,full_name,photo,address,birth_date,email,note,phone
+iit,user01,anhemiit@123,true,true,manager,John Smith,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1990-01-01,user1@iit.vn,,0368909968
+iit,user02,anhemiit@123,true,false,monitor,Nguyen Van A,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1991-02-02,user2@iit.vn,,0368909968
+iit,user03,anhemiit@123,true,false,user,Jane Doe,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1992-03-03,user3@iit.vn,,0368909968
+cng,user04,anhemiit@123,true,true,manager,Le Thi B,,"97 Võ Văn Tần, Quận 3, TP.HCM",1993-04-04,user4@cs.vn,,0123456789
+cng,user05,anhemiit@123,true,false,monitor,Michael Johnson,,"97 Võ Văn Tần, Quận 3, TP.HCM",1994-05-05,user5@cs.vn,,0123456789
+cng,user06,anhemiit@123,true,false,user,Tran Thi C,,"97 Võ Văn Tần, Quận 3, TP.HCM",1995-06-06,user6@cs.vn,,0123456789
+lit,user07,anhemiit@123,true,true,manager,David Brown,,"55 Nguyễn Du, Quận 1, TP.HCM",1996-07-07,user7@lit.vn,,0987654321
+lit,user08,anhemiit@123,true,false,monitor,Pham Van D,,"55 Nguyễn Du, Quận 1, TP.HCM",1997-08-08,user8@lit.vn,,0987654321
+lit,user09,anhemiit@123,true,false,user,Emily Davis,,"55 Nguyễn Du, Quận 1, TP.HCM",1998-09-09,user9@lit.vn,,0987654321
+sci,user10,anhemiit@123,true,true,manager,Nguyen Thi E,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",1999-10-10,user10@sci.vn,,0369852147
+sci,user11,anhemiit@123,true,false,monitor,James Wilson,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",2000-11-11,user11@sci.vn,,0369852147
+sci,user12,anhemiit@123,true,false,user,Nguyen Van F,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",2001-12-12,user12@sci.vn,,0369852147
+iit,user13,anhemiit@123,true,true,manager,Jessica Taylor,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1990-01-13,user13@iit.vn,,0368909968
+iit,user14,anhemiit@123,true,false,monitor,Nguyen Thi G,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1991-02-14,user14@iit.vn,,0368909968
+iit,user15,anhemiit@123,true,false,user,Christopher Lee,,"38/2D Mậu Thân, Ninh Kiều, TP.Cần Thơ",1992-03-15,user15@iit.vn,,0368909968
+cng,user16,anhemiit@123,true,true,manager,Nguyen Van H,,"97 Võ Văn Tần, Quận 3, TP.HCM",1993-04-16,user16@cs.vn,,0123456789
+cng,user17,anhemiit@123,true,false,monitor,Elizabeth Martinez,,"97 Võ Văn Tần, Quận 3, TP.HCM",1994-05-17,user17@cs.vn,,0123456789
+cng,user18,anhemiit@123,true,false,user,Nguyen Thi I,,"97 Võ Văn Tần, Quận 3, TP.HCM",1995-06-18,user18@cs.vn,,0123456789
+lit,user19,anhemiit@123,true,true,manager,William Anderson,,"55 Nguyễn Du, Quận 1, TP.HCM",1996-07-19,user19@lit.vn,,0987654321
+lit,user20,anhemiit@123,true,false,monitor,Nguyen Van J,,"55 Nguyễn Du, Quận 1, TP.HCM",1997-08-20,user20@lit.vn,,0987654321
+lit,user21,anhemiit@123,true,false,user,Olivia Thomas,,"55 Nguyễn Du, Quận 1, TP.HCM",1998-09-21,user21@lit.vn,,0987654321
+sci,user22,anhemiit@123,true,true,manager,Nguyen Thi K,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",1999-10-22,user22@sci.vn,,0369852147
+sci,user23,anhemiit@123,true,false,monitor,Daniel Jackson,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",2000-11-23,user23@sci.vn,,0369852147
+sci,user24,anhemiit@123,true,false,user,Nguyen Van L,,"245 Nguyễn Văn Cừ, Quận 5, TP.HCM",2001-12-24,user24@sci.vn,,0369852147
