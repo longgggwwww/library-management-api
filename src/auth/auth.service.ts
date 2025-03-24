@@ -1,17 +1,27 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
+import { CustomPrismaService } from 'nestjs-prisma';
 import {
+  memberAccessTokenSecret,
+  memberAccessTokenTTL,
+  memberRefreshTokenSecret,
+  memberRefreshTokenTTL,
   refreshTokenSecret,
   refreshTokenTTL,
 } from 'src/common/constants/env-keys';
+import { CUSTOM_PRISMA_CLIENT } from 'src/common/constants/inject-tokens';
+import { ExtendedPrismaClient } from 'src/custom-prisma/custom-prisma.extension';
 import { UserService } from 'src/user/user.service';
-import { RefreshTokenDto } from './dto/auth-token.dto';
+import { LoginAsMemberDto, RefreshTokenDto } from './dto/auth-token.dto';
 import { User } from './types/user.type';
 
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CUSTOM_PRISMA_CLIENT)
+    private readonly prisma: CustomPrismaService<ExtendedPrismaClient>,
     private readonly user: UserService,
     private readonly jwt: JwtService,
   ) {}
@@ -76,6 +86,118 @@ export class AuthService {
         branchId: user.branch?.id,
         permissions: userPermissions,
       });
+    } catch (err) {
+      console.error(err); // Ghi log lỗi
+      throw new BadRequestException('Invalid token'); // Báo lỗi nếu token không hợp lệ
+    }
+  }
+
+  private memIncludeOpts: Prisma.MemberInclude = {
+    branch: true,
+    borrowedItems: {
+      include: {
+        publication: true,
+      },
+    },
+    borrowingSlips: {
+      include: {
+        borrowings: {
+          include: {
+            item: {
+              include: {
+                publication: true,
+              },
+            },
+          },
+        },
+        branch: true,
+      },
+    },
+    class: true,
+    group: true,
+    schoolYear: true,
+  };
+
+  async loginAsMember(dto: LoginAsMemberDto) {
+    const { method, username, password } = dto;
+
+    // Kiểm tra phương thức đăng nhập
+    const user = await this.prisma.client.member.findFirst({
+      where: {
+        OR: [
+          method === 'VNeID' && { VNeID: username },
+          method === 'email' && { email: username },
+          method === 'phone' && { phone: username },
+        ],
+        isLocked: false,
+      },
+      include: this.memIncludeOpts,
+    });
+    if (!user) {
+      throw new BadRequestException('Invalid username or password');
+    }
+
+    // Kiểm tra mật khẩu
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new BadRequestException('Invalid username or password');
+    }
+
+    // Tạo token và trả về
+    return {
+      accessToken: this.jwt.sign(
+        {
+          id: user.id,
+          branchId: user.branchId,
+          isLocked: user.isLocked,
+        },
+        { secret: memberAccessTokenSecret, expiresIn: memberAccessTokenTTL },
+      ),
+      refreshToken: this.jwt.sign(
+        { id: user.id },
+        { secret: memberRefreshTokenSecret, expiresIn: memberRefreshTokenTTL },
+      ),
+      user,
+    };
+  }
+
+  async refreshToeknAsMember(dto: RefreshTokenDto) {
+    try {
+      // Giải mã token để lấy thông tin người dùng
+      const decoded = this.jwt.verify(dto.refreshToken, {
+        secret: memberRefreshTokenSecret, // Sử dụng secret để giải mã
+      });
+
+      // Tìm người dùng theo ID từ token
+      const user = await this.prisma.client.member.findFirst({
+        where: {
+          id: decoded.id,
+        },
+        include: this.memIncludeOpts,
+      });
+      if (!user) {
+        throw new BadRequestException('Invalid token'); // Báo lỗi nếu không tìm thấy người dùng
+      }
+
+      // Tạo token mới và trả về
+      return {
+        accessToken: this.jwt.sign(
+          {
+            id: user.id,
+            branchId: user.branchId,
+            isLocked: user.isLocked,
+          },
+          { secret: memberAccessTokenSecret, expiresIn: memberAccessTokenTTL },
+        ),
+        refreshToken: this.jwt.sign(
+          { id: user.id },
+          {
+            secret: memberRefreshTokenSecret,
+            expiresIn: memberRefreshTokenTTL,
+          },
+        ),
+        user,
+      };
     } catch (err) {
       console.error(err); // Ghi log lỗi
       throw new BadRequestException('Invalid token'); // Báo lỗi nếu token không hợp lệ

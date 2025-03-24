@@ -18,5 +18,5 @@ export class CreateAccountPackageDto {
   description: string; // Mô tả gói tài khoản (không bắt buộc)
 
   @IsInt()
-  memberGroupId: number; // ID nhóm thành viên
+  memGroupId: number; // ID nhóm thành viên
 }

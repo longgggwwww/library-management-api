@@ -15,32 +15,32 @@ import { PermService } from './permission.service';
 
 @Controller('permissions')
 export class PermController {
-  constructor(private readonly permission: PermService) {}
+  constructor(private readonly perm: PermService) {}
 
   // Tạo một permission mới
   @Permit('CREATE_PERMISSION')
   @Post()
   create(@Body() dto: CreatePermDto) {
-    return this.permission.create(dto);
+    return this.perm.create(dto);
   }
 
   // Tìm kiếm nhiều permission
   @Permit('VIEW_PERMISSION')
   @Get()
   findMany() {
-    return this.permission.findMany();
+    return this.perm.findMany();
   }
 
   // Tìm kiếm một permission
   @Get(':id')
   find(@Param('id') id: string) {
-    return this.permission.find(id);
+    return this.perm.find(id);
   }
 
   // Cập nhật một permission
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdatePermDto) {
-    return this.permission.update(id, dto);
+    return this.perm.update(id, dto);
   }
 
   // Xoá nhiều permission
@@ -49,12 +49,12 @@ export class PermController {
     @Body('ids', new ParseArrayPipe({ items: String }))
     ids: string[],
   ) {
-    return this.permission.deleteMany(ids);
+    return this.perm.deleteMany(ids);
   }
 
   // Endpoint này sẽ xóa một permission
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return this.permission.delete(id);
+    return this.perm.delete(id);
   }
 }

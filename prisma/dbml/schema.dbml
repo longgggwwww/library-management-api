@@ -14,8 +14,10 @@ Table Branch {
   isActive Boolean [not null, default: true]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
+  borrowingPolicy BorrowingPolicy
   authors Author [not null]
   borrwings Borrowing [not null]
+  borrowingSlips BorrowingSlip [not null]
   categories Category [not null]
   classes Class [not null]
   genres Genre [not null]
@@ -26,7 +28,7 @@ Table Branch {
   itemConditions ItemCondition [not null]
   languages Language [not null]
   members Member [not null]
-  memberGroups MemberGroup [not null]
+  memGroups MemberGroup [not null]
   publications Publication [not null]
   publishers Publisher [not null]
   schoolYears SchoolYear [not null]
@@ -34,113 +36,95 @@ Table Branch {
   users User [not null]
 }
 
-Table MemberGroup {
+Table User {
   id Int [pk, increment]
-  code String [not null]
-  name String [not null]
   branchId Int
-  maxBorrowedItems Int [not null]
-  maxBorrowDays Int [not null]
-  maxBorrowRequests Int [not null]
-  description String
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  accountPackages AccountPackage [not null]
-  members Member [not null]
-  branch Branch
-
-  indexes {
-    (code, branchId) [unique]
-  }
-}
-
-Table AccountPackage {
-  id Int [pk, increment]
-  code String [not null]
-  name String [not null]
-  fee Int [not null]
-  durationInMonths Int [not null]
-  description String
-  memberGroupId Int [not null]
-  memberGroup MemberGroup [not null]
-
-  indexes {
-    (code, memberGroupId) [unique]
-  }
-}
-
-Table Member {
-  id Int [pk, increment]
-  VNeID String [unique, not null]
-  email String [unique, not null]
-  phone String [unique, not null]
+  roleId Int
+  username String [unique, not null]
   password String [not null]
-  branchId Int
-  classId Int
-  schoolYearId Int
-  groupId Int
+  address String
   birthDate DateTime
+  email String [not null]
   fullName String [not null]
+  note String
+  phone String [not null]
   avatarUrl String
-  isLocked Boolean [not null, default: true]
-  gender Gender [not null]
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  borrowings Borrowing [not null]
-  borrowedItems Item [not null]
-  branch Branch
-  class Class
-  group MemberGroup
-  schoolYear SchoolYear
-}
-
-Table Class {
-  id Int [pk, increment]
-  code String [not null]
-  name String [not null]
-  branchId Int
+  isActive Boolean [not null, default: true]
+  isAdmin Boolean [default: false]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
   branch Branch
-  members Member [not null]
-
-  indexes {
-    (code, branchId) [unique]
-  }
-}
-
-Table SchoolYear {
-  id Int [pk, increment]
-  code String [not null]
-  name String [not null]
-  branchId Int
-  createdAt DateTime [default: `now()`, not null]
-  updatedAt DateTime [not null]
-  members Member [not null]
-  branch Branch
-
-  indexes {
-    (code, branchId) [unique]
-  }
+  role Role
+  inventoryReceipts InventoryReceipt [not null]
+  createdItems Item [not null]
+  createdPubs Publication [not null]
+  createdPublishers Publisher [not null]
 }
 
 Table Borrowing {
   id Int [pk, increment]
   code String [not null]
   borrowerId Int [not null]
-  inventoryId Int [not null]
-  borrowedDate DateTime [not null]
-  returnDate DateTime [not null]
+  borrowedAt DateTime [not null]
+  dueDate DateTime [not null]
+  returnedAt DateTime
   itemId Int [unique, not null]
   branchId Int
+  status BorrowingStatus [not null, default: 'BORROWED']
+  borrowingFee Float [not null]
   borrower Member [not null]
   branch Branch
-  inventory Inventory [not null]
   item Item [not null]
+  borrowingSlipId Int
+  borrowingSlip BorrowingSlip
+  extensions BorrowingExtension [not null]
 
   indexes {
     (code, branchId) [unique]
   }
+}
+
+Table BorrowingSlip {
+  id Int [pk, increment]
+  code String [not null]
+  borrowerId Int [not null]
+  branchId Int
+  borrowingDate DateTime [not null]
+  dueDate DateTime [not null]
+  totalFee Float [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  borrower Member [not null]
+  branch Branch
+  borrowings Borrowing [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table BorrowingPolicy {
+  id Int [pk, increment]
+  branchId Int [unique]
+  maxBorrowDays Int [not null]
+  baseFee Float [not null]
+  extensionFeePerDay Float [not null]
+  maxExtensions Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+}
+
+Table BorrowingExtension {
+  id Int [pk, increment]
+  borrowingId Int [not null]
+  extendedDate DateTime [not null]
+  newDueDate DateTime [not null]
+  reason String
+  extensionFee Float [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  borrowing Borrowing [not null]
 }
 
 Table Inventory {
@@ -149,42 +133,12 @@ Table Inventory {
   name String [not null]
   branchId Int
   description String
-  borrwings Borrowing [not null]
   branch Branch
   inventoryReceipts InventoryReceipt [not null]
   items Item [not null]
 
   indexes {
     (code, branchId) [unique]
-  }
-}
-
-Table Shelf {
-  id Int [pk, increment]
-  code String [not null]
-  name String [not null]
-  branchId Int
-  description String
-  items Item [not null]
-  racks Rack [not null]
-  branch Branch
-
-  indexes {
-    (code, branchId) [unique]
-  }
-}
-
-Table Rack {
-  id Int [pk, increment]
-  code String [not null]
-  name String [not null]
-  shelfId Int
-  description String
-  items Item [not null]
-  shelf Shelf
-
-  indexes {
-    (code, shelfId) [unique]
   }
 }
 
@@ -206,6 +160,7 @@ Table Item {
   updatedAt DateTime [not null]
   inventoryReceiptPublicationPublicationId Int
   inventoryReceiptPublicationInventoryReceiptId Int
+  borrowingFeePolicy BorrowingFeePolicy
   browwing Borrowing
   borrower Member
   branch Branch
@@ -422,29 +377,136 @@ Table Language {
   }
 }
 
-Table User {
+Table Member {
   id Int [pk, increment]
-  branchId Int
-  roleId Int
-  username String [unique, not null]
+  VNeID String [unique, not null]
+  email String [unique, not null]
+  phone String [unique, not null]
   password String [not null]
-  address String
+  branchId Int
+  classId Int
+  schoolYearId Int
+  groupId Int
   birthDate DateTime
-  email String [not null]
   fullName String [not null]
-  note String
-  phone String [not null]
   avatarUrl String
-  isActive Boolean [not null, default: true]
-  isAdmin Boolean [default: false]
+  isLocked Boolean [not null, default: true]
+  gender Gender [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  inventoryReceipts InventoryReceipt [not null]
-  createdItems Item [not null]
-  createdPubs Publication [not null]
-  createdPublishers Publisher [not null]
+  borrowings Borrowing [not null]
+  borrowedItems Item [not null]
   branch Branch
-  role Role
+  class Class
+  group MemberGroup
+  schoolYear SchoolYear
+  borrowingSlips BorrowingSlip [not null]
+}
+
+Table MemberGroup {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  maxBorrowedItems Int [not null]
+  maxBorrowDays Int [not null]
+  maxBorrowRequests Int [not null]
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  accountPackages AccountPackage [not null]
+  members Member [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table AccountPackage {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  fee Int [not null]
+  durationInMonths Int [not null]
+  description String
+  memGroupId Int [not null]
+  memGroup MemberGroup [not null]
+
+  indexes {
+    (code, memGroupId) [unique]
+  }
+}
+
+Table Class {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  branch Branch
+  members Member [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table SchoolYear {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  members Member [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Shelf {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  branchId Int
+  description String
+  items Item [not null]
+  racks Rack [not null]
+  branch Branch
+
+  indexes {
+    (code, branchId) [unique]
+  }
+}
+
+Table Rack {
+  id Int [pk, increment]
+  code String [not null]
+  name String [not null]
+  shelfId Int
+  description String
+  items Item [not null]
+  shelf Shelf
+
+  indexes {
+    (code, shelfId) [unique]
+  }
+}
+
+Table BorrowingFeePolicy {
+  id Int [pk, increment]
+  itemId Int [unique, not null]
+  baseFee Float [not null]
+  extensionFee Float [not null]
+  maxBorrowDays Int [not null]
+  maxExtensions Int [not null]
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  item Item [not null]
 }
 
 Table Role {
@@ -533,35 +595,33 @@ Enum PublicationType {
   BOTH
 }
 
-Ref: MemberGroup.branchId > Branch.id
+Enum BorrowingStatus {
+  BORROWED
+  RETURNED
+  OVERDUE
+}
 
-Ref: AccountPackage.memberGroupId > MemberGroup.id
+Ref: User.branchId > Branch.id
 
-Ref: Member.branchId > Branch.id
-
-Ref: Member.classId > Class.id
-
-Ref: Member.groupId > MemberGroup.id
-
-Ref: Member.schoolYearId > SchoolYear.id
-
-Ref: Class.branchId > Branch.id
-
-Ref: SchoolYear.branchId > Branch.id
+Ref: User.roleId > Role.id
 
 Ref: Borrowing.borrowerId > Member.id
 
 Ref: Borrowing.branchId > Branch.id
 
-Ref: Borrowing.inventoryId > Inventory.id
-
 Ref: Borrowing.itemId - Item.id
 
+Ref: Borrowing.borrowingSlipId > BorrowingSlip.id [delete: Cascade]
+
+Ref: BorrowingSlip.borrowerId > Member.id
+
+Ref: BorrowingSlip.branchId > Branch.id
+
+Ref: BorrowingPolicy.branchId - Branch.id
+
+Ref: BorrowingExtension.borrowingId > Borrowing.id [delete: Cascade]
+
 Ref: Inventory.branchId > Branch.id
-
-Ref: Shelf.branchId > Branch.id
-
-Ref: Rack.shelfId > Shelf.id
 
 Ref: Item.borrowerId > Member.id
 
@@ -619,9 +679,27 @@ Ref: Hashtag.publicationId > Publication.id [delete: Cascade]
 
 Ref: Language.branchId > Branch.id
 
-Ref: User.branchId > Branch.id
+Ref: Member.branchId > Branch.id
 
-Ref: User.roleId > Role.id
+Ref: Member.classId > Class.id
+
+Ref: Member.groupId > MemberGroup.id
+
+Ref: Member.schoolYearId > SchoolYear.id
+
+Ref: MemberGroup.branchId > Branch.id
+
+Ref: AccountPackage.memGroupId > MemberGroup.id
+
+Ref: Class.branchId > Branch.id
+
+Ref: SchoolYear.branchId > Branch.id
+
+Ref: Shelf.branchId > Branch.id
+
+Ref: Rack.shelfId > Shelf.id
+
+Ref: BorrowingFeePolicy.itemId - Item.id [delete: Cascade]
 
 Ref: Permission.groupId > PermissionGroup.id
 

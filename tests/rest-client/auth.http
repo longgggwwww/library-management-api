@@ -1,9 +1,9 @@
 @resource = auth
 
 ### Đăng nhập
-POST {{baseURL}}/{{resource}}/login
+POST {{base_url}}/{{resource}}/login
 Content-Type: application/json
-x-api-key: {{apiKey}}
+x-api-key: {{api_key}}
 
 {
     "username": "admin",
@@ -13,10 +13,10 @@ x-api-key: {{apiKey}}
 ###
 
 ### Làm mới token
-POST {{baseURL}}/{{resource}}/token/refresh
+POST {{base_url}}/{{resource}}/token/refresh
 Content-Type: application/json
-x-api-key: {{apiKey}}
+x-api-key: {{api_key}}
 
 {
-    "refreshToken": "{{refreshToken}}"
+    "refreshToken": "{{refresh_token}}"
 }

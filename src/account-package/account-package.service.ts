@@ -1,36 +1,36 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
-import { PrismaService } from 'nestjs-prisma';
+import { CustomPrismaService } from 'nestjs-prisma';
+import { CUSTOM_PRISMA_CLIENT } from 'src/common/constants/inject-tokens';
+import { ExtendedPrismaClient } from 'src/custom-prisma/custom-prisma.extension';
 import { CreateAccountPackageDto } from './dto/create-account-package.dto';
 import { UpdateAccountPackageDto } from './dto/update-account-package.dto';
 
 @Injectable()
 export class AccountPackageService {
   constructor(
-    private readonly prismaService: PrismaService,
-    // @Inject('CUSTOM_PRISMA_CLIENT')
-    // private readonly prismaService: CustomPrismaService<ExtendedPrismaClient>,
+    @Inject(CUSTOM_PRISMA_CLIENT)
+    private readonly prisma: CustomPrismaService<ExtendedPrismaClient>,
   ) {}
 
-  // Include các thông tin liên quan
   private includeOpts: Prisma.AccountPackageInclude = {
-    memberGroup: true,
+    memGroup: true,
   };
 
-  // Hàm tạo mới một phí dịch vụ
+  // Tạo mới một phí dịch vụ
   async create(branchId: number, dto: CreateAccountPackageDto) {
-    // Kiểm tra xem memberGroupId có thuộc branchId hay không
-    const memberGroup = await this.prismaService.memberGroup.findUnique({
+    // Kiểm tra xem nhóm thành viên có tồn tại hay không
+    const memGroup = await this.prisma.client.memberGroup.findUnique({
       where: {
-        id: dto.memberGroupId,
-        branchId, // Đảm bảo memberGroup thuộc branchId
+        id: dto.memGroupId,
+        branchId, // Đảm bảo nhóm thành viên thuộc branchId
       },
     });
-
-    if (!memberGroup) {
-      throw new Error('Member group does not belong to the specified branch');
+    if (!memGroup) {
+      throw new BadRequestException('Member group not found');
     }
-    return this.prismaService.accountPackage.create({
+
+    return this.prisma.client.accountPackage.create({
       data: dto,
       include: this.includeOpts,
     });
@@ -38,86 +38,80 @@ export class AccountPackageService {
 
   async findMany(branchId: number) {}
 
-  // Hàm kiểm tra xem một phí dịch vụ có tồn tại hay không
+  // Tìm kiếm một phí dịch vụ
   async find(branchId: number, id: number) {
-    return this.prismaService.accountPackage.findUniqueOrThrow({
+    return this.prisma.client.accountPackage.findUnique({
       where: {
         id,
-        memberGroup: {
-          branchId, // Kiểm tra xem phí dịch vụ có thuộc branch của người dùng hay không
+        memGroup: {
+          branchId,
         },
       },
       include: this.includeOpts,
     });
   }
 
-  // Hàm cập nhật một phí dịch vụ
+  // Cập nhật một phí dịch vụ
   async update(branchId: number, id: number, dto: UpdateAccountPackageDto) {
     // Kiểm tra xem phí dịch vụ có tồn tại hay không
-    const accountPackage = await this.prismaService.accountPackage.findUnique({
+    const accountPkg = await this.prisma.client.accountPackage.findFirst({
       where: {
         id,
-        memberGroup: {
-          branchId, // Đảm bảo phí dịch vụ thuộc branchId
-        },
       },
     });
-    if (!accountPackage) {
-      throw new Error('Account package not found');
+    if (!accountPkg) {
+      throw new BadRequestException('Account package not found');
     }
 
-    // Kiểm tra xem member group có tồn tại hay không
-    if (dto.memberGroupId) {
-      const memberGroup = await this.prismaService.memberGroup.findFirst({
+    // Kiêm tra nhóm thành viên có tồn tại hay không
+    if (dto.memGroupId) {
+      const memGroup = await this.prisma.client.memberGroup.findFirst({
         where: {
-          id: dto.memberGroupId,
+          id: dto.memGroupId,
           branchId,
         },
       });
-      if (!memberGroup) {
-        throw new Error('Member group not found');
+      if (!memGroup) {
+        throw new BadRequestException('Member group not found');
       }
     }
 
-    return this.prismaService.accountPackage.update({
+    return this.prisma.client.accountPackage.update({
       where: {
         id,
       },
-      data: {
-        ...dto,
-        memberGroupId: dto.memberGroupId,
-      },
-      // ...this.includeOpts,
+      data: dto,
+      include: this.includeOpts,
     });
   }
 
-  // Hàm xóa một phí dịch vụ
+  // Xóa một phí dịch vụ
   async delete(branchId: number, id: number) {
-    return this.prismaService.accountPackage.delete({
+    return this.prisma.client.accountPackage.delete({
       where: {
         id,
-        memberGroup: {
+        memGroup: {
           branchId,
         },
       },
     });
   }
 
-  // Hàm xóa nhiều phí dịch vụ
+  // Xóa nhiều phí dịch vn
   async deleteMany(branchId: number, ids: number[]) {
-    return this.prismaService.accountPackage.deleteMany({
+    return this.prisma.client.accountPackage.deleteMany({
       where: {
         id: {
           in: ids,
         },
-        memberGroup: {
+        memGroup: {
           branchId,
         },
       },
     });
   }
 
-  // Hàm tìm kiếm phí dịch vụ theo tên
+  // Tìm kiếm nhiều phí dịch vụ theo các tiêu chí
   async search(branchId: number, query: string) {
     return 'This feature is not implemented yet';
   }

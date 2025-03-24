@@ -13,6 +13,14 @@ export const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
 export const accessTokenTTL = process.env.ACCESS_TOKEN_TTL || '15m';
 export const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
 export const refreshTokenTTL = process.env.REFRESH_TOKEN_TTL || '7d';
+export const memberAccessTokenSecret =
+  process.env.ACCESS_TOKEN_SECRET_FOR_MEMBER;
+export const memberAccessTokenTTL =
+  process.env.ACCESS_TOKEN_TTL_FOR_MEMBER || '1d';
+export const memberRefreshTokenSecret =
+  process.env.REFRESH_TOKEN_SECRET_FOR_MEMBER;
+export const memberRefreshTokenTTL =
+  process.env.REFRESH_TOKEN_TTL_FOR_MEMBER || '30d';
 export const throttleTTL = parseInt(process.env.THROTTLE_TTL) || 60;
 export const throttleLimit = parseInt(process.env.THROTTLE_LIMIT) || 10;
 
@@ -29,5 +37,11 @@ function validateEnvVar() {
   }
   if (!refreshTokenSecret) {
     throw new Error('REFRESH_TOKEN_SECRET must be provided');
+  }
+  if (!memberAccessTokenSecret) {
+    throw new Error('MEMBER_ACCESS_TOKEN_SECRET must be provided');
+  }
+  if (!memberRefreshTokenSecret) {
+    throw new Error('MEMBER_REFRESH_TOKEN_SECRET must be provided');
   }
 }

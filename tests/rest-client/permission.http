@@ -1,20 +1,29 @@
 @resource = permissions
 
 ### Lấy danh sách quyền
-GET {{baseURL}}/{{resource}}
-x-api-key: {{apiKey}}
-Authorization: Bearer {{accessToken}}
+GET {{base_url}}/{{resource}}
+x-api-key: {{api_key}}
+Authorization: Bearer {{access_token}}
 
 ###
 
+### Lấy chi tiết quyền
+
+@id = NEW_TEST_PERMISSION_01
+GET {{base_url}}/{{resource}}/{{id}}
+x-api-key: {{api_key}}
+Authorization: Bearer {{access_token}}
+
 ### Tạo quyền mới
-POST {{baseURL}}/{{resource}}
+POST {{base_url}}/{{resource}}
 Content-Type: application/json
-x-api-key: {{apiKey}}
+x-api-key: {{api_key}}
+Authorization: Bearer {{access_token}}
 
 {
-    "name": "new_permission",
-    "description": "Description of the permission"
+    "id": "NEW_TEST_PERMISSION_01",
+    "name": "New Test Permission 01",
+    "description": "New Test Permission 01 Description"
 }
 
 ###

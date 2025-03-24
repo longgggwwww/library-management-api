@@ -20,7 +20,7 @@ export class PermService {
   async create(dto: CreatePermDto) {
     return this.prisma.client.permission.create({
       data: dto,
-      ...this.includeOpts,
+      include: this.includeOpts,
     });
   }
 
@@ -34,7 +34,9 @@ export class PermService {
   async find(id: string) {
     return this.prisma.client.permission.findUniqueOrThrow({
       where: { id },
-      ...this.includeOpts,
+      include: {
+        roles: true,
+      },
     });
   }
 
@@ -43,7 +45,7 @@ export class PermService {
     return this.prisma.client.permission.update({
       where: { id },
       data: dto,
-      ...this.includeOpts,
+      include: this.includeOpts,
     });
   }
 
@@ -51,7 +53,6 @@ export class PermService {
   async delete(id: string) {
     return this.prisma.client.permission.delete({
       where: { id },
-      ...this.includeOpts,
     });
   }
 

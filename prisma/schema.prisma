@@ -11,219 +11,190 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Model chi nhánh (thư viện trường học)
 model Branch {
   id                Int                @id @default(autoincrement())
-  code              String             @unique
-  name              String
-  logoUrl           String?
-  address           String?
-  phone             String?
-  email             String?
-  website           String?
-  isActive          Boolean            @default(true)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  authors           Author[]
-  borrwings         Borrowing[]
-  categories        Category[]
-  classes           Class[]
-  genres            Genre[]
-  hashtags          Hashtag[]
-  inventories       Inventory[]
-  inventoryReceipts InventoryReceipt[]
-  items             Item[]
-  itemConditions    ItemCondition[]
-  languages         Language[]
-  members           Member[]
-  memberGroups      MemberGroup[]
-  publications      Publication[]
-  publishers        Publisher[]
-  schoolYears       SchoolYear[]
-  shelves           Shelf[]
-  users             User[]
+  code              String             @unique // Mã chi nhánh, duy nhất
+  name              String // Tên chi nhánh
+  logoUrl           String? // URL logo của chi nhánh
+  address           String? // Địa chỉ chi nhánh
+  phone             String? // Số điện thoại liên hệ
+  email             String? // Email liên hệ
+  website           String? // Website của chi nhánh
+  isActive          Boolean            @default(true) // Trạng thái hoạt động của chi nhánh
+  createdAt         DateTime           @default(now()) // Thời gian tạo
+  updatedAt         DateTime           @updatedAt // Thời gian cập nhật cuối
+  borrowingPolicy   BorrowingPolicy? // Chính sách mượn sách của chi nhánh
+  authors           Author[] // Danh sách tác giả liên kết với chi nhánh
+  borrwings         Borrowing[] // Danh sách các lần mượn sách
+  borrowingSlips    BorrowingSlip[] // Danh sách phiếu mượn sách
+  categories        Category[] // Danh mục sách
+  classes           Class[] // Danh sách lớp học
+  genres            Genre[] // Thể loại sách
+  hashtags          Hashtag[] // Hashtag liên quan
+  inventories       Inventory[] // Kho sách
+  inventoryReceipts InventoryReceipt[] // Biên nhận nhập kho
+  items             Item[] // Các sách
+  itemConditions    ItemCondition[] // Điều kiện sách
+  languages         Language[] // Ngôn ngữ sách
+  members           Member[] // Thành viên của chi nhánh
+  memGroups         MemberGroup[] // Nhóm thành viên
+  publications      Publication[] // Ấn phẩm
+  publishers        Publisher[] // Nhà xuất bản
+  schoolYears       SchoolYear[] // Niên khóa
+  shelves           Shelf[] // Kệ sách
+  users             User[] // Người dùng
 }
 
-model MemberGroup {
-  id                Int              @id @default(autoincrement())
-  code              String
-  name              String
-  branchId          Int?
-  maxBorrowedItems  Int
-  maxBorrowDays     Int
-  maxBorrowRequests Int
-  description       String?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
-  accountPackages   AccountPackage[]
-  members           Member[]
-  branch            Branch?          @relation(fields: [branchId], references: [id])
+model User {
+  id                Int                @id @default(autoincrement())
+  branchId          Int? // ID chi nhánh mà người dùng thuộc về
+  roleId            Int? // ID vai trò của người dùng
+  username          String             @unique // Tên đăng nhập, duy nhất
+  password          String // Mật khẩu
+  address           String? // Địa chỉ của người dùng
+  birthDate         DateTime? // Ngày sinh
+  email             String // Email của người dùng
+  fullName          String // Họ và tên đầy đủ
+  note              String? // Ghi chú thêm
+  phone             String // Số điện thoại
+  avatarUrl         String? // URL ảnh đại diện
+  isActive          Boolean            @default(true) // Trạng thái hoạt động
+  isAdmin           Boolean?           @default(false) // Có phải là quản trị viên không
+  createdAt         DateTime           @default(now()) // Thời gian tạo
+  updatedAt         DateTime           @updatedAt // Thời gian cập nhật cuối
+  branch            Branch?            @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  role              Role?              @relation(fields: [roleId], references: [id]) // Liên kết với vai trò
+  inventoryReceipts InventoryReceipt[] // Biên nhận nhập kho do người dùng tạo
+  createdItems      Item[] // Các sách do người dùng tạo
+  createdPubs       Publication[] // Các ấn phẩm do người dùng tạo
+  createdPublishers Publisher[] // Các nhà xuất bản do người dùng tạo
 
-  @@unique([code, branchId])
-  @@index([branchId], map: "MemberGroup_branchId_fkey")
+  @@index([branchId], map: "User_branchId_fkey")
+  @@index([roleId], map: "User_roleId_fkey")
 }
 
-model AccountPackage {
-  id               Int         @id @default(autoincrement())
-  code             String
-  name             String
-  fee              Int
-  durationInMonths Int
-  description      String?
-  memberGroupId    Int
-  memberGroup      MemberGroup @relation(fields: [memberGroupId], references: [id])
-
-  @@unique([code, memberGroupId])
-  @@index([memberGroupId], map: "AccountPackage_memberGroupId_fkey")
-}
-
-model Member {
-  id            Int          @id @default(autoincrement())
-  VNeID         String       @unique
-  email         String       @unique
-  phone         String       @unique
-  password      String
-  branchId      Int?
-  classId       Int?
-  schoolYearId  Int?
-  groupId       Int?
-  birthDate     DateTime?
-  fullName      String
-  avatarUrl     String?
-  isLocked      Boolean      @default(true)
-  gender        Gender
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  borrowings    Borrowing[]
-  borrowedItems Item[]
-  branch        Branch?      @relation(fields: [branchId], references: [id])
-  class         Class?       @relation(fields: [classId], references: [id])
-  group         MemberGroup? @relation(fields: [groupId], references: [id])
-  schoolYear    SchoolYear?  @relation(fields: [schoolYearId], references: [id])
-
-  @@index([branchId], map: "Member_branchId_fkey")
-  @@index([classId], map: "Member_classId_fkey")
-  @@index([groupId], map: "Member_groupId_fkey")
-  @@index([schoolYearId], map: "Member_schoolYearId_fkey")
-}
-
-model Class {
-  id        Int      @id @default(autoincrement())
-  code      String
-  name      String
-  branchId  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  branch    Branch?  @relation(fields: [branchId], references: [id])
-  members   Member[]
-
-  @@unique([code, branchId])
-  @@index([branchId], map: "Class_branchId_fkey")
-}
-
-model SchoolYear {
-  id        Int      @id @default(autoincrement())
-  code      String
-  name      String
-  branchId  Int?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  members   Member[]
-  branch    Branch?  @relation(fields: [branchId], references: [id])
-
-  @@unique([code, branchId])
-  @@index([branchId], map: "SchoolYear_branchId_fkey")
-}
-
+// Model mượn sách
 model Borrowing {
-  id           Int       @id @default(autoincrement())
-  code         String
-  borrowerId   Int
-  inventoryId  Int
-  borrowedDate DateTime
-  returnDate   DateTime
-  itemId       Int       @unique
-  branchId     Int?
-  borrower     Member    @relation(fields: [borrowerId], references: [id])
-  branch       Branch?   @relation(fields: [branchId], references: [id])
-  inventory    Inventory @relation("InventoryToBorrowing", fields: [inventoryId], references: [id])
-  item         Item      @relation(fields: [itemId], references: [id])
+  id              Int                  @id @default(autoincrement())
+  code            String // Mã mượn sách
+  borrowerId      Int // ID người mượn sách
+  borrowedAt      DateTime // Thời gian mượn sách
+  dueDate         DateTime // Thời gian phải trả sách
+  returnedAt      DateTime? // Thời gian trả sách
+  itemId          Int                  @unique // ID sách mượn, duy nhất
+  branchId        Int? // ID chi nhánh
+  status          BorrowingStatus      @default(BORROWED) // Trạng thái mượn sách
+  borrowingFee    Float // Phí mượn sách
+  borrower        Member               @relation(fields: [borrowerId], references: [id]) // Liên kết với người mượn sách
+  branch          Branch?              @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  item            Item                 @relation(fields: [itemId], references: [id]) // Liên kết với sách mượn
+  borrowingSlipId Int? // ID phiếu mượn sách
+  borrowingSlip   BorrowingSlip?       @relation(fields: [borrowingSlipId], references: [id], onDelete: Cascade) // Liên kết với phiếu mượn sách
+  extensions      BorrowingExtension[] // Danh sách gia hạn mượn sách
 
   @@unique([code, branchId])
   @@index([borrowerId], map: "Borrowing_borrowerId_fkey")
   @@index([branchId], map: "Borrowing_branchId_fkey")
-  @@index([inventoryId], map: "Borrowing_inventoryId_fkey")
+  @@index([borrowingSlipId], map: "Borrowing_borrowingSlipId_fkey")
 }
 
+// Model phiếu mượn sách
+model BorrowingSlip {
+  id            Int         @id @default(autoincrement())
+  code          String // Mã phiếu mượn sách
+  borrowerId    Int // ID người mượn sách
+  branchId      Int? // ID chi nhánh
+  borrowingDate DateTime // Ngày mượn sách
+  dueDate       DateTime // Ngày phải trả sách
+  totalFee      Float // Tổng phí mượn sách
+  createdAt     DateTime    @default(now()) // Thời gian tạo
+  updatedAt     DateTime    @updatedAt // Thời gian cập nhật cuối
+  borrower      Member      @relation(fields: [borrowerId], references: [id]) // Liên kết với người mượn sách
+  branch        Branch?     @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  borrowings    Borrowing[] // Danh sách các lần mượn sách
+
+  @@unique([code, branchId])
+  @@index([borrowerId], map: "BorrowingSlip_borrowerId_fkey")
+  @@index([branchId], map: "BorrowingSlip_branchId_fkey")
+}
+
+// Model chính sách mượn sách
+model BorrowingPolicy {
+  id                 Int      @id @default(autoincrement())
+  branchId           Int? // ID chi nhánh
+  maxBorrowDays      Int // Số ngày tối đa được mượn sách
+  baseFee            Float // Phí cơ bản khi mượn sách
+  extensionFeePerDay Float // Phí gia hạn mỗi ngày
+  maxExtensions      Int // Số lần gia hạn tối đa
+  createdAt          DateTime @default(now()) // Thời gian tạo
+  updatedAt          DateTime @updatedAt // Thời gian cập nhật cuối
+  branch             Branch?  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@unique([branchId])
+  @@index([branchId], map: "BorrowingPolicy_branchId_fkey")
+}
+
+// Model gia hạn mượn sách
+model BorrowingExtension {
+  id           Int       @id @default(autoincrement())
+  borrowingId  Int // ID lần mượn sách
+  extendedDate DateTime // Ngày gia hạn
+  newDueDate   DateTime // Ngày phải trả sách mới
+  reason       String? // Lý do gia hạn
+  extensionFee Float // Phí gia hạn
+  createdAt    DateTime  @default(now()) // Thời gian tạo
+  updatedAt    DateTime  @updatedAt // Thời gian cập nhật cuối
+  borrowing    Borrowing @relation(fields: [borrowingId], references: [id], onDelete: Cascade) // Liên kết với lần mượn sách
+
+  @@index([borrowingId], map: "BorrowingExtension_borrowingId_fkey")
+}
+
+// Model kho sách
 model Inventory {
   id                Int                @id @default(autoincrement())
-  code              String
-  name              String
-  branchId          Int?
-  description       String?
-  borrwings         Borrowing[]        @relation("InventoryToBorrowing")
-  branch            Branch?            @relation(fields: [branchId], references: [id])
-  inventoryReceipts InventoryReceipt[]
-  items             Item[]
+  code              String // Mã kho sách
+  name              String // Tên kho sách
+  branchId          Int? // ID chi nhánh
+  description       String? // Mô tả kho sách
+  branch            Branch?            @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  inventoryReceipts InventoryReceipt[] // Danh sách biên nhận nhập kho
+  items             Item[] // Danh sách các sách
 
   @@unique([code, branchId])
   @@index([branchId], map: "Inventory_branchId_fkey")
 }
 
-model Shelf {
-  id          Int     @id @default(autoincrement())
-  code        String
-  name        String
-  branchId    Int?
-  description String?
-  items       Item[]
-  racks       Rack[]
-  branch      Branch? @relation(fields: [branchId], references: [id])
-
-  @@unique([code, branchId])
-  @@index([branchId], map: "Shelf_branchId_fkey")
-}
-
-model Rack {
-  id          Int     @id @default(autoincrement())
-  code        String
-  name        String
-  shelfId     Int?
-  description String?
-  items       Item[]
-  shelf       Shelf?  @relation(fields: [shelfId], references: [id])
-
-  @@unique([code, shelfId])
-  @@index([shelfId], map: "Rack_shelfId_fkey")
-}
-
+// Model sách
 model Item {
   id                                            Int                          @id @default(autoincrement())
-  barcode                                       String
-  branchId                                      Int?
-  publicationId                                 Int?
-  borrowerId                                    Int?
-  createdByUserId                               Int?
-  status                                        InventoryItemStatus          @default(AVAILABLE)
-  shelfId                                       Int?
-  rackId                                        Int?
-  inventoryId                                   Int?
-  conditionId                                   Int?
-  isShelved                                     Boolean                      @default(false)
-  description                                   String?
-  createdAt                                     DateTime                     @default(now())
-  updatedAt                                     DateTime                     @updatedAt
-  inventoryReceiptPublicationPublicationId      Int?
-  inventoryReceiptPublicationInventoryReceiptId Int?
-  browwing                                      Borrowing?
-  borrower                                      Member?                      @relation(fields: [borrowerId], references: [id])
-  branch                                        Branch?                      @relation(fields: [branchId], references: [id])
-  condition                                     ItemCondition?               @relation(fields: [conditionId], references: [id])
-  createdByUser                                 User?                        @relation(fields: [createdByUserId], references: [id])
-  inventory                                     Inventory?                   @relation(fields: [inventoryId], references: [id])
-  inventoryReceiptPublication                   InventoryReceiptPublication? @relation(fields: [inventoryReceiptPublicationPublicationId, inventoryReceiptPublicationInventoryReceiptId], references: [publicationId, inventoryReceiptId])
-  publication                                   Publication?                 @relation(fields: [publicationId], references: [id])
-  rack                                          Rack?                        @relation(fields: [rackId], references: [id])
-  shelf                                         Shelf?                       @relation(fields: [shelfId], references: [id])
+  barcode                                       String // Mã vạch sách
+  branchId                                      Int? // ID chi nhánh
+  publicationId                                 Int? // ID ấn phẩm
+  borrowerId                                    Int? // ID người mượn sách
+  createdByUserId                               Int? // ID người tạo sách
+  status                                        InventoryItemStatus          @default(AVAILABLE) // Trạng thái sách
+  shelfId                                       Int? // ID kệ sách
+  rackId                                        Int? // ID giá sách
+  inventoryId                                   Int? // ID kho sách
+  conditionId                                   Int? // ID điều kiện sách
+  isShelved                                     Boolean                      @default(false) // Trạng thái có được đặt lên kệ không
+  description                                   String? // Mô tả sách
+  createdAt                                     DateTime                     @default(now()) // Thời gian tạo
+  updatedAt                                     DateTime                     @updatedAt // Thời gian cập nhật cuối
+  inventoryReceiptPublicationPublicationId      Int? // ID ấn phẩm trong biên nhận nhập kho
+  inventoryReceiptPublicationInventoryReceiptId Int? // ID biên nhận nhập kho
+  borrowingFeePolicy                            BorrowingFeePolicy? // Chính sách phí mượn sách
+  browwing                                      Borrowing? // Lần mượn sách
+  borrower                                      Member?                      @relation(fields: [borrowerId], references: [id]) // Liên kết với người mượn sách
+  branch                                        Branch?                      @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  condition                                     ItemCondition?               @relation(fields: [conditionId], references: [id]) // Liên kết với điều kiện sách
+  createdByUser                                 User?                        @relation(fields: [createdByUserId], references: [id]) // Liên kết với người tạo sách
+  inventory                                     Inventory?                   @relation(fields: [inventoryId], references: [id]) // Liên kết với kho sách
+  inventoryReceiptPublication                   InventoryReceiptPublication? @relation(fields: [inventoryReceiptPublicationPublicationId, inventoryReceiptPublicationInventoryReceiptId], references: [publicationId, inventoryReceiptId]) // Liên kết với biên nhận nhập kho
+  publication                                   Publication?                 @relation(fields: [publicationId], references: [id]) // Liên kết với ấn phẩm
+  rack                                          Rack?                        @relation(fields: [rackId], references: [id]) // Liên kết với giá sách
+  shelf                                         Shelf?                       @relation(fields: [shelfId], references: [id]) // Liên kết với kệ sách
 
   @@unique([barcode, branchId])
   @@index([borrowerId], map: "Item_borrowerId_fkey")
@@ -237,39 +208,41 @@ model Item {
   @@index([shelfId], map: "Item_shelfId_fkey")
 }
 
+// Model điều kiện sách
 model ItemCondition {
   id          Int      @id @default(autoincrement())
-  code        String
-  name        String
-  description String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  color       String?
-  percentage  Int?
-  branchId    Int?
-  items       Item[]
-  branch      Branch?  @relation(fields: [branchId], references: [id])
+  code        String // Mã điều kiện sách
+  name        String // Tên điều kiện sách
+  description String? // Mô tả điều kiện sách
+  createdAt   DateTime @default(now()) // Thời gian tạo
+  updatedAt   DateTime @updatedAt // Thời gian cập nhật cuối
+  color       String? // Màu sắc điều kiện sách
+  percentage  Int? // Tỷ lệ điều kiện sách
+  branchId    Int? // ID chi nhánh
+  items       Item[] // Danh sách các sách
+  branch      Branch?  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
 
   @@unique([code, branchId])
   @@index([branchId], map: "ItemCondition_branchId_fkey")
 }
 
+// Model biên nhận nhập kho
 model InventoryReceipt {
   id                           Int                           @id @default(autoincrement())
-  code                         String
-  title                        String
-  branchId                     Int?
-  createdByUserId              Int?
-  inventoryId                  Int?
-  description                  String?
-  supplier                     String?
-  status                       InventoryReceiptStatus        @default(PENDING)
-  createdAt                    DateTime                      @default(now())
-  updatedAt                    DateTime                      @updatedAt
-  branch                       Branch?                       @relation(fields: [branchId], references: [id])
-  createdByUser                User?                         @relation(fields: [createdByUserId], references: [id])
-  inventory                    Inventory?                    @relation(fields: [inventoryId], references: [id])
-  inventoryReceiptPublications InventoryReceiptPublication[]
+  code                         String // Mã biên nhận nhập kho
+  title                        String // Tiêu đề biên nhận nhập kho
+  branchId                     Int? // ID chi nhánh
+  createdByUserId              Int? // ID người tạo biên nhận nhập kho
+  inventoryId                  Int? // ID kho sách
+  description                  String? // Mô tả biên nhận nhập kho
+  supplier                     String? // Nhà cung cấp
+  status                       InventoryReceiptStatus        @default(PENDING) // Trạng thái biên nhận nhập kho
+  createdAt                    DateTime                      @default(now()) // Thời gian tạo
+  updatedAt                    DateTime                      @updatedAt // Thời gian cập nhật cuối
+  branch                       Branch?                       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  createdByUser                User?                         @relation(fields: [createdByUserId], references: [id]) // Liên kết với người tạo biên nhận nhập kho
+  inventory                    Inventory?                    @relation(fields: [inventoryId], references: [id]) // Liên kết với kho sách
+  inventoryReceiptPublications InventoryReceiptPublication[] // Danh sách ấn phẩm trong biên nhận nhập kho
 
   @@unique([code, branchId])
   @@index([branchId], map: "InventoryReceipt_branchId_fkey")
@@ -277,53 +250,55 @@ model InventoryReceipt {
   @@index([inventoryId], map: "InventoryReceipt_inventoryId_fkey")
 }
 
+// Model ấn phẩm trong biên nhận nhập kho (model phụ)
 model InventoryReceiptPublication {
-  publicationId      Int
-  inventoryReceiptId Int
-  quantity           Int
-  createdAt          DateTime         @default(now())
-  updatedAt          DateTime         @updatedAt
-  inventoryReceipt   InventoryReceipt @relation(fields: [inventoryReceiptId], references: [id])
-  publication        Publication      @relation(fields: [publicationId], references: [id])
-  items              Item[]
+  publicationId      Int // ID ấn phẩm
+  inventoryReceiptId Int // ID biên nhận nhập kho
+  quantity           Int // Số lượng ấn phẩm
+  createdAt          DateTime         @default(now()) // Thời gian tạo
+  updatedAt          DateTime         @updatedAt // Thời gian cập nhật cuối
+  inventoryReceipt   InventoryReceipt @relation(fields: [inventoryReceiptId], references: [id]) // Liên kết với biên nhận nhập kho
+  publication        Publication      @relation(fields: [publicationId], references: [id]) // Liên kết với ấn phẩm
+  items              Item[] // Danh sách các sách
 
   @@id([publicationId, inventoryReceiptId])
   @@index([inventoryReceiptId], map: "InventoryReceiptPublication_inventoryReceiptId_fkey")
 }
 
+// Model ấn phẩm
 model Publication {
   id                          Int                           @id @default(autoincrement())
-  createdByUserId             Int?
-  branchId                    Int?
-  publisherId                 Int?
-  title                       String
-  coverUrl                    String?
-  slug                        String
-  isPublished                 Boolean                       @default(true)
-  type                        PublicationType
-  summary                     String?
-  isbn                        String?                       @unique
-  publishedDate               DateTime?
-  fileUrl                     String?
-  fileSize                    Int?
-  code                        String
-  translator                  String?
-  volumeNumber                Int?
-  coverPrice                  Float?
-  pageCount                   Int?
-  createdAt                   DateTime                      @default(now())
-  updatedAt                   DateTime                      @updatedAt
-  hashtags                    Hashtag[]
-  inventoryReceptPublications InventoryReceiptPublication[]
-  items                       Item[]
-  branch                      Branch?                       @relation(fields: [branchId], references: [id])
-  createdByUser               User?                         @relation(fields: [createdByUserId], references: [id])
-  publisher                   Publisher?                    @relation(fields: [publisherId], references: [id])
-  publicationAlias            PublicationAlias[]
-  authors                     Author[]                      @relation("AuthorToPublication")
-  genres                      Genre[]                       @relation("GenreToPublication")
-  languages                   Language[]                    @relation("LanguageToPublication")
-  categories                  Category[]                    @relation("PublicationToCategory")
+  createdByUserId             Int? // ID người tạo ấn phẩm
+  branchId                    Int? // ID chi nhánh
+  publisherId                 Int? // ID nhà xuất bản
+  title                       String // Tiêu đề ấn phẩm
+  coverUrl                    String? // URL ảnh bìa
+  slug                        String // Slug của ấn phẩm
+  isPublished                 Boolean                       @default(true) // Trạng thái xuất bản
+  type                        PublicationType // Loại ấn phẩm
+  summary                     String? // Tóm tắt nội dung
+  isbn                        String?                       @unique // Mã ISBN, duy nhất
+  publishedDate               DateTime? // Ngày xuất bản
+  fileUrl                     String? // URL file ấn phẩm
+  fileSize                    Int? // Kích thước file ấn phẩm
+  code                        String // Mã ấn phẩm
+  translator                  String? // Người dịch
+  volumeNumber                Int? // Số tập
+  coverPrice                  Float? // Giá bìa
+  pageCount                   Int? // Số trang
+  createdAt                   DateTime                      @default(now()) // Thời gian tạo
+  updatedAt                   DateTime                      @updatedAt // Thời gian cập nhật cuối
+  hashtags                    Hashtag[] // Danh sách hashtag liên quan
+  inventoryReceptPublications InventoryReceiptPublication[] // Danh sách ấn phẩm trong biên nhận nhập kho
+  items                       Item[] // Danh sách các sách
+  branch                      Branch?                       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  createdByUser               User?                         @relation(fields: [createdByUserId], references: [id]) // Liên kết với người tạo ấn phẩm
+  publisher                   Publisher?                    @relation(fields: [publisherId], references: [id]) // Liên kết với nhà xuất bản
+  publicationAlias            PublicationAlias[] // Danh sách bí danh của ấn phẩm
+  authors                     Author[]                      @relation("AuthorToPublication") // Danh sách tác giả
+  genres                      Genre[]                       @relation("GenreToPublication") // Danh sách thể loại
+  languages                   Language[]                    @relation("LanguageToPublication") // Danh sách ngôn ngữ
+  categories                  Category[]                    @relation("PublicationToCategory") // Danh sách danh mục
 
   @@unique([code, branchId])
   @@index([branchId], map: "Publication_branchId_fkey")
@@ -331,203 +306,337 @@ model Publication {
   @@index([publisherId], map: "Publication_publisherId_fkey")
 }
 
+// Model bí danh của ấn phẩm (tên khác của ấn phẩm)
 model PublicationAlias {
   id            Int         @id @default(autoincrement())
-  alias         String
-  publicationId Int
-  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  alias         String // Bí danh của ấn phẩm
+  publicationId Int // ID ấn phẩm
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade) // Liên kết với ấn phẩm
 
   @@index([publicationId], map: "PublicationAlias_publicationId_fkey")
 }
 
+// Model tác giả
 model Author {
   id           Int           @id @default(autoincrement())
-  code         String
-  name         String
-  birthYear    Int?
-  deathYear    Int?
-  nationality  String?
-  photoUrl     String?
-  description  String?
-  branchId     Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  publications Publication[] @relation("AuthorToPublication")
+  code         String // Mã tác giả
+  name         String // Tên tác giả
+  birthYear    Int? // Năm sinh
+  deathYear    Int? // Năm mất
+  nationality  String? // Quốc tịch
+  photoUrl     String? // URL ảnh tác giả
+  description  String? // Mô tả về tác giả
+  branchId     Int? // ID chi nhánh
+  createdAt    DateTime      @default(now()) // Thời gian tạo
+  updatedAt    DateTime      @updatedAt // Thời gian cập nhật cuối
+  branch       Branch?       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  publications Publication[] @relation("AuthorToPublication") // Danh sách ấn phẩm của tác giả
 
   @@unique([code, branchId])
   @@index([branchId], map: "Author_branchId_fkey")
 }
 
+// Model nhà xuất bản
 model Publisher {
   id              Int           @id @default(autoincrement())
-  code            String
-  branchId        Int?
-  createdByUserId Int?
-  name            String
-  phone           String?
-  email           String?
-  address         String?
-  note            String?
-  photoUrl        String?
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  publications    Publication[]
-  branch          Branch?       @relation(fields: [branchId], references: [id])
-  createdByUser   User?         @relation(fields: [createdByUserId], references: [id])
+  code            String // Mã nhà xuất bản
+  branchId        Int? // ID chi nhánh
+  createdByUserId Int? // ID người tạo nhà xuất bản
+  name            String // Tên nhà xuất bản
+  phone           String? // Số điện thoại liên hệ
+  email           String? // Email liên hệ
+  address         String? // Địa chỉ nhà xuất bản
+  note            String? // Ghi chú thêm
+  photoUrl        String? // URL ảnh nhà xuất bản
+  createdAt       DateTime      @default(now()) // Thời gian tạo
+  updatedAt       DateTime      @updatedAt // Thời gian cập nhật cuối
+  publications    Publication[] // Danh sách ấn phẩm của nhà xuất bản
+  branch          Branch?       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  createdByUser   User?         @relation(fields: [createdByUserId], references: [id]) // Liên kết với người tạo nhà xuất bản
 
   @@unique([code, branchId])
   @@index([branchId], map: "Publisher_branchId_fkey")
   @@index([createdByUserId], map: "Publisher_createdByUserId_fkey")
 }
 
+// Model danh mục sách
 model Category {
   id           Int           @id @default(autoincrement())
-  name         String
-  code         String
-  branchId     Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  publications Publication[] @relation("PublicationToCategory")
+  name         String // Tên danh mục
+  code         String // Mã danh mục
+  branchId     Int? // ID chi nhánh
+  createdAt    DateTime      @default(now()) // Thời gian tạo
+  updatedAt    DateTime      @updatedAt // Thời gian cập nhật cuối
+  branch       Branch?       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  publications Publication[] @relation("PublicationToCategory") // Danh sách ấn phẩm trong danh mục
 
   @@unique([code, branchId])
   @@index([branchId], map: "Category_branchId_fkey")
 }
 
+// Model thể loại sách
 model Genre {
   id           Int           @id @default(autoincrement())
-  code         String
-  name         String
-  branchId     Int?
-  parentId     Int?
-  description  String?
-  updatedAt    DateTime      @updatedAt
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  parent       Genre?        @relation("GenreRelation", fields: [parentId], references: [id])
-  children     Genre[]       @relation("GenreRelation")
-  publications Publication[] @relation("GenreToPublication")
+  code         String // Mã thể loại
+  name         String // Tên thể loại
+  branchId     Int? // ID chi nhánh
+  parentId     Int? // ID thể loại cha
+  description  String? // Mô tả thể loại
+  updatedAt    DateTime      @updatedAt // Thời gian cập nhật cuối
+  branch       Branch?       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  parent       Genre?        @relation("GenreRelation", fields: [parentId], references: [id]) // Liên kết với thể loại cha
+  children     Genre[]       @relation("GenreRelation") // Danh sách thể loại con
+  publications Publication[] @relation("GenreToPublication") // Danh sách ấn phẩm trong thể loại
 
   @@unique([code, branchId])
   @@index([branchId], map: "Genre_branchId_fkey")
   @@index([parentId], map: "Genre_parentId_fkey")
 }
 
+// Model hashtag (từ khóa) liên quan của ấn phẩm
 model Hashtag {
   id            Int         @id @default(autoincrement())
-  name          String
-  publicationId Int
-  branchId      Int?
-  branch        Branch?     @relation(fields: [branchId], references: [id])
-  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade)
+  name          String // Tên hashtag
+  publicationId Int // ID ấn phẩm
+  branchId      Int? // ID chi nhánh
+  branch        Branch?     @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  publication   Publication @relation(fields: [publicationId], references: [id], onDelete: Cascade) // Liên kết với ấn phẩm
 
   @@index([branchId], map: "Hashtag_branchId_fkey")
   @@index([publicationId], map: "Hashtag_publicationId_fkey")
 }
 
+// Model ngôn ngữ sách
 model Language {
   id           Int           @id @default(autoincrement())
-  code         String
-  name         String
-  branchId     Int?
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  branch       Branch?       @relation(fields: [branchId], references: [id])
-  publications Publication[] @relation("LanguageToPublication")
+  code         String // Mã ngôn ngữ
+  name         String // Tên ngôn ngữ
+  branchId     Int? // ID chi nhánh
+  createdAt    DateTime      @default(now()) // Thời gian tạo
+  updatedAt    DateTime      @updatedAt // Thời gian cập nhật cuối
+  branch       Branch?       @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  publications Publication[] @relation("LanguageToPublication") // Danh sách ấn phẩm trong ngôn ngữ
 
   @@unique([code, branchId])
   @@index([branchId], map: "Language_branchId_fkey")
 }
 
-model User {
-  id                Int                @id @default(autoincrement())
-  branchId          Int?
-  roleId            Int?
-  username          String             @unique
-  password          String
-  address           String?
-  birthDate         DateTime?
-  email             String
-  fullName          String
-  note              String?
-  phone             String
-  avatarUrl         String?
-  isActive          Boolean            @default(true)
-  isAdmin           Boolean?           @default(false)
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  inventoryReceipts InventoryReceipt[]
-  createdItems      Item[]
-  createdPubs       Publication[]
-  createdPublishers Publisher[]
-  branch            Branch?            @relation(fields: [branchId], references: [id])
-  role              Role?              @relation(fields: [roleId], references: [id])
+// Model thành viên (bạn đọc)
+model Member {
+  id             Int             @id @default(autoincrement())
+  VNeID          String          @unique // ID thành viên, duy nhất
+  email          String          @unique // Email thành viên, duy nhất
+  phone          String          @unique // Số điện thoại thành viên, duy nhất
+  password       String // Mật khẩu
+  branchId       Int? // ID chi nhánh
+  classId        Int? // ID lớp học
+  schoolYearId   Int? // ID niên khóa
+  groupId        Int? // ID nhóm thành viên
+  birthDate      DateTime? // Ngày sinh
+  fullName       String // Họ và tên đầy đủ
+  avatarUrl      String? // URL ảnh đại diện
+  isLocked       Boolean         @default(true) // Trạng thái khóa tài khoản
+  gender         Gender // Giới tính
+  createdAt      DateTime        @default(now()) // Thời gian tạo
+  updatedAt      DateTime        @updatedAt // Thời gian cập nhật cuối
+  borrowings     Borrowing[] // Danh sách các lần mượn sách
+  borrowedItems  Item[] // Danh sách các sách đã mượn
+  branch         Branch?         @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  class          Class?          @relation(fields: [classId], references: [id]) // Liên kết với lớp học
+  group          MemberGroup?    @relation(fields: [groupId], references: [id]) // Liên kết với nhóm thành viên
+  schoolYear     SchoolYear?     @relation(fields: [schoolYearId], references: [id]) // Liên kết với niên khóa
+  borrowingSlips BorrowingSlip[] // Danh sách phiếu mượn sách
 
-  @@index([branchId], map: "User_branchId_fkey")
-  @@index([roleId], map: "User_roleId_fkey")
+  @@index([branchId], map: "Member_branchId_fkey")
+  @@index([classId], map: "Member_classId_fkey")
+  @@index([groupId], map: "Member_groupId_fkey")
+  @@index([schoolYearId], map: "Member_schoolYearId_fkey")
 }
 
+// Model nhóm thành viên (nhóm bạn đọc)
+model MemberGroup {
+  id                Int              @id @default(autoincrement())
+  code              String // Mã nhóm thành viên
+  name              String // Tên nhóm thành viên
+  branchId          Int? // ID chi nhánh
+  maxBorrowedItems  Int // Số lượng sách tối đa được mượn
+  maxBorrowDays     Int // Số ngày tối đa được mượn sách
+  maxBorrowRequests Int // Số lượng yêu cầu mượn sách tối đa
+  description       String? // Mô tả nhóm thành viên
+  createdAt         DateTime         @default(now()) // Thời gian tạo
+  updatedAt         DateTime         @updatedAt // Thời gian cập nhật cuối
+  accountPackages   AccountPackage[] // Danh sách gói tài khoản
+  members           Member[] // Danh sách thành viên trong nhóm
+  branch            Branch?          @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "MemberGroup_branchId_fkey")
+}
+
+// Model chính sách gói tài khoản (gói mở tài khoản)
+model AccountPackage {
+  id               Int         @id @default(autoincrement())
+  code             String // Mã gói tài khoản
+  name             String // Tên gói tài khoản
+  fee              Int // Phí gói tài khoản
+  durationInMonths Int // Thời gian sử dụng gói tài khoản (tính bằng tháng)
+  description      String? // Mô tả gói tài khoản
+  memGroupId       Int // ID nhóm thành viên
+  memGroup         MemberGroup @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
+
+  @@unique([code, memGroupId])
+  @@index([memGroupId], map: "AccountPackage_memGroupId_fkey")
+}
+
+// Model lớp học
+model Class {
+  id        Int      @id @default(autoincrement())
+  code      String // Mã lớp học
+  name      String // Tên lớp học
+  branchId  Int? // ID chi nhánh
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật cuối
+  branch    Branch?  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  members   Member[] // Danh sách thành viên trong lớp
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Class_branchId_fkey")
+}
+
+// Model niên khóa
+model SchoolYear {
+  id        Int      @id @default(autoincrement())
+  code      String // Mã niên khóa
+  name      String // Tên niên khóa
+  branchId  Int? // ID chi nhánh
+  createdAt DateTime @default(now()) // Thời gian tạo
+  updatedAt DateTime @updatedAt // Thời gian cập nhật cuối
+  members   Member[] // Danh sách thành viên trong niên khóa
+  branch    Branch?  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "SchoolYear_branchId_fkey")
+}
+
+// Model kệ sách
+model Shelf {
+  id          Int     @id @default(autoincrement())
+  code        String // Mã kệ sách
+  name        String // Tên kệ sách
+  branchId    Int? // ID chi nhánh
+  description String? // Mô tả kệ sách
+  items       Item[] // Danh sách các sách trên kệ
+  racks       Rack[] // Danh sách giá sách trên kệ
+  branch      Branch? @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@unique([code, branchId])
+  @@index([branchId], map: "Shelf_branchId_fkey")
+}
+
+// Model kho sách
+model Rack {
+  id          Int     @id @default(autoincrement())
+  code        String // Mã giá sách
+  name        String // Tên giá sách
+  shelfId     Int? // ID kệ sách
+  description String? // Mô tả giá sách
+  items       Item[] // Danh sách các sách trên giá
+  shelf       Shelf?  @relation(fields: [shelfId], references: [id]) // Liên kết với kệ sách
+
+  @@unique([code, shelfId])
+  @@index([shelfId], map: "Rack_shelfId_fkey")
+}
+
+// Model chính sách phí mượn sách (chính sách phí mượn sách, theo sách)
+model BorrowingFeePolicy {
+  id            Int      @id @default(autoincrement())
+  itemId        Int // ID sách
+  baseFee       Float // Phí cơ bản khi mượn sách
+  extensionFee  Float // Phí gia hạn
+  maxBorrowDays Int // Số ngày tối đa được mượn sách
+  maxExtensions Int // Số lần gia hạn tối đa
+  createdAt     DateTime @default(now()) // Thời gian tạo
+  updatedAt     DateTime @updatedAt // Thời gian cập nhật cuối
+  item          Item     @relation(fields: [itemId], references: [id], onDelete: Cascade) // Liên kết với sách
+
+  @@unique([itemId])
+  @@index([itemId], map: "BorrowingFeePolicy_itemId_fkey")
+}
+
+enum Gender {
+  MALE // Nam
+  FEMALE // Nữ
+}
+
+enum InventoryItemStatus {
+  AVAILABLE // Có sẵn
+  BORROWED // Đã mượn
+  RETURNED // Đã trả
+  OVERDUE // Quá hạn
+}
+
+// Enum trạng thái biên nhận nhập kho
+enum InventoryReceiptStatus {
+  PENDING // Đang chờ duyệt
+  APPROVED // Đã duyệt
+  REJECTED // Đã từ chối
+  CANCELLED // Đã hủy
+}
+
+// Enum loại ấn phẩm
+enum PublicationType {
+  PRINT // In ấn
+  DIGITAL // Kỹ thuật số
+  BOTH // Cả hai
+}
+
+// Enum trạng thái mượn
+enum BorrowingStatus {
+  BORROWED // Đã mượn
+  RETURNED // Đã trả
+  OVERDUE // Quá hạn
+}
+
+// Model vai trò
 model Role {
   id          Int          @id @default(autoincrement())
-  name        String
-  code        String       @unique
-  color       String?
-  description String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  settings    Setting[]    @relation("RoleToSetting")
-  users       User[]
-  permissions Permission[] @relation("PermissionToRole")
+  name        String // Tên vai trò
+  code        String       @unique // Mã vai trò, duy nhất
+  color       String? // Màu sắc vai trò
+  description String? // Mô tả vai trò
+  createdAt   DateTime     @default(now()) // Thời gian tạo
+  updatedAt   DateTime     @updatedAt // Thời gian cập nhật cuối
+  settings    Setting[]    @relation("RoleToSetting") // Danh sách cài đặt liên quan
+  users       User[] // Danh sách người dùng có vai trò này
+  permissions Permission[] @relation("PermissionToRole") // Danh sách quyền liên quan
 }
 
+// Model quyền hạn
 model Permission {
-  id          String           @id @unique
-  name        String
-  description String?
-  groupId     Int?
-  group       PermissionGroup? @relation("PermissionToGroup", fields: [groupId], references: [id])
-  roles       Role[]           @relation("PermissionToRole")
+  id          String           @id @unique // ID quyền, duy nhất
+  name        String // Tên quyền
+  description String? // Mô tả quyền
+  groupId     Int? // ID nhóm quyền
+  group       PermissionGroup? @relation("PermissionToGroup", fields: [groupId], references: [id]) // Liên kết với nhóm quyền
+  roles       Role[]           @relation("PermissionToRole") // Danh sách vai trò có quyền này
 
   @@index([groupId], map: "Permission_groupId_fkey")
 }
 
+// Model nhóm quyền
 model PermissionGroup {
   id          Int          @id @default(autoincrement())
-  code        String       @unique
-  name        String
-  description String?
-  permissions Permission[] @relation("PermissionToGroup")
+  code        String       @unique // Mã nhóm quyền, duy nhất
+  name        String // Tên nhóm quyền
+  description String? // Mô tả nhóm quyền
+  permissions Permission[] @relation("PermissionToGroup") // Danh sách quyền trong nhóm
 }
 
+// Model cài đặt hệ thống
 model Setting {
   id                Int   @id @default(autoincrement())
-  defaultUserRoleId Int?
-  defaultUserRole   Role? @relation("RoleToSetting", fields: [defaultUserRoleId], references: [id])
+  defaultUserRoleId Int? // ID vai trò mặc định của người dùng
+  defaultUserRole   Role? @relation("RoleToSetting", fields: [defaultUserRoleId], references: [id]) // Liên kết với vai trò mặc định
 
   @@index([defaultUserRoleId], map: "Setting_defaultUserRoleId_fkey")
-}
-
-enum Gender {
-  MALE
-  FEMALE
-}
-
-enum InventoryItemStatus {
-  AVAILABLE
-  BORROWED
-  RETURNED
-  OVERDUE
-}
-
-enum InventoryReceiptStatus {
-  PENDING
-  APPROVED
-  REJECTED
-  CANCELLED
-}
-
-enum PublicationType {
-  PRINT
-  DIGITAL
-  BOTH
 }

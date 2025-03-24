@@ -17,92 +17,27 @@ CREATE TABLE `Branch` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `MemberGroup` (
+CREATE TABLE `User` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
     `branchId` INTEGER NULL,
-    `maxBorrowedItems` INTEGER NOT NULL,
-    `maxBorrowDays` INTEGER NOT NULL,
-    `maxBorrowRequests` INTEGER NOT NULL,
-    `description` VARCHAR(191) NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    INDEX `MemberGroup_branchId_fkey`(`branchId`),
-    UNIQUE INDEX `MemberGroup_code_branchId_key`(`code`, `branchId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `AccountPackage` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `fee` INTEGER NOT NULL,
-    `durationInMonths` INTEGER NOT NULL,
-    `description` VARCHAR(191) NULL,
-    `memberGroupId` INTEGER NOT NULL,
-
-    INDEX `AccountPackage_memberGroupId_fkey`(`memberGroupId`),
-    UNIQUE INDEX `AccountPackage_code_memberGroupId_key`(`code`, `memberGroupId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Member` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `VNeID` VARCHAR(191) NOT NULL,
-    `email` VARCHAR(191) NOT NULL,
-    `phone` VARCHAR(191) NOT NULL,
+    `roleId` INTEGER NULL,
+    `username` VARCHAR(191) NOT NULL,
     `password` VARCHAR(191) NOT NULL,
-    `branchId` INTEGER NULL,
-    `classId` INTEGER NULL,
-    `schoolYearId` INTEGER NULL,
-    `groupId` INTEGER NULL,
+    `address` VARCHAR(191) NULL,
     `birthDate` DATETIME(3) NULL,
+    `email` VARCHAR(191) NOT NULL,
     `fullName` VARCHAR(191) NOT NULL,
+    `note` VARCHAR(191) NULL,
+    `phone` VARCHAR(191) NOT NULL,
     `avatarUrl` VARCHAR(191) NULL,
-    `isLocked` BOOLEAN NOT NULL DEFAULT true,
-    `gender` ENUM('MALE', 'FEMALE') NOT NULL,
+    `isActive` BOOLEAN NOT NULL DEFAULT true,
+    `isAdmin` BOOLEAN NULL DEFAULT false,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Member_VNeID_key`(`VNeID`),
-    UNIQUE INDEX `Member_email_key`(`email`),
-    UNIQUE INDEX `Member_phone_key`(`phone`),
-    INDEX `Member_branchId_fkey`(`branchId`),
-    INDEX `Member_classId_fkey`(`classId`),
-    INDEX `Member_groupId_fkey`(`groupId`),
-    INDEX `Member_schoolYearId_fkey`(`schoolYearId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Class` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `branchId` INTEGER NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    INDEX `Class_branchId_fkey`(`branchId`),
-    UNIQUE INDEX `Class_code_branchId_key`(`code`, `branchId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `SchoolYear` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `branchId` INTEGER NULL,
-    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
-    `updatedAt` DATETIME(3) NOT NULL,
-
-    INDEX `SchoolYear_branchId_fkey`(`branchId`),
-    UNIQUE INDEX `SchoolYear_code_branchId_key`(`code`, `branchId`),
+    UNIQUE INDEX `User_username_key`(`username`),
+    INDEX `User_branchId_fkey`(`branchId`),
+    INDEX `User_roleId_fkey`(`roleId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -111,17 +46,69 @@ CREATE TABLE `Borrowing` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
     `borrowerId` INTEGER NOT NULL,
-    `inventoryId` INTEGER NOT NULL,
-    `borrowedDate` DATETIME(3) NOT NULL,
-    `returnDate` DATETIME(3) NOT NULL,
+    `borrowedAt` DATETIME(3) NOT NULL,
+    `dueDate` DATETIME(3) NOT NULL,
+    `returnedAt` DATETIME(3) NULL,
     `itemId` INTEGER NOT NULL,
     `branchId` INTEGER NULL,
+    `status` ENUM('BORROWED', 'RETURNED', 'OVERDUE') NOT NULL DEFAULT 'BORROWED',
+    `borrowingFee` DOUBLE NOT NULL,
+    `borrowingSlipId` INTEGER NULL,
 
     UNIQUE INDEX `Borrowing_itemId_key`(`itemId`),
     INDEX `Borrowing_borrowerId_fkey`(`borrowerId`),
     INDEX `Borrowing_branchId_fkey`(`branchId`),
-    INDEX `Borrowing_inventoryId_fkey`(`inventoryId`),
+    INDEX `Borrowing_borrowingSlipId_fkey`(`borrowingSlipId`),
     UNIQUE INDEX `Borrowing_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `BorrowingSlip` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `borrowerId` INTEGER NOT NULL,
+    `branchId` INTEGER NULL,
+    `borrowingDate` DATETIME(3) NOT NULL,
+    `dueDate` DATETIME(3) NOT NULL,
+    `totalFee` DOUBLE NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `BorrowingSlip_borrowerId_fkey`(`borrowerId`),
+    INDEX `BorrowingSlip_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `BorrowingSlip_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `BorrowingPolicy` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `branchId` INTEGER NULL,
+    `maxBorrowDays` INTEGER NOT NULL,
+    `baseFee` DOUBLE NOT NULL,
+    `extensionFeePerDay` DOUBLE NOT NULL,
+    `maxExtensions` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `BorrowingPolicy_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `BorrowingPolicy_branchId_key`(`branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `BorrowingExtension` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `borrowingId` INTEGER NOT NULL,
+    `extendedDate` DATETIME(3) NOT NULL,
+    `newDueDate` DATETIME(3) NOT NULL,
+    `reason` VARCHAR(191) NULL,
+    `extensionFee` DOUBLE NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `BorrowingExtension_borrowingId_fkey`(`borrowingId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -135,32 +122,6 @@ CREATE TABLE `Inventory` (
 
     INDEX `Inventory_branchId_fkey`(`branchId`),
     UNIQUE INDEX `Inventory_code_branchId_key`(`code`, `branchId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Shelf` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `branchId` INTEGER NULL,
-    `description` VARCHAR(191) NULL,
-
-    INDEX `Shelf_branchId_fkey`(`branchId`),
-    UNIQUE INDEX `Shelf_code_branchId_key`(`code`, `branchId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `Rack` (
-    `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `shelfId` INTEGER NULL,
-    `description` VARCHAR(191) NULL,
-
-    INDEX `Rack_shelfId_fkey`(`shelfId`),
-    UNIQUE INDEX `Rack_code_shelfId_key`(`code`, `shelfId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -386,27 +347,134 @@ CREATE TABLE `Language` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `User` (
+CREATE TABLE `Member` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `branchId` INTEGER NULL,
-    `roleId` INTEGER NULL,
-    `username` VARCHAR(191) NOT NULL,
-    `password` VARCHAR(191) NOT NULL,
-    `address` VARCHAR(191) NULL,
-    `birthDate` DATETIME(3) NULL,
+    `VNeID` VARCHAR(191) NOT NULL,
     `email` VARCHAR(191) NOT NULL,
-    `fullName` VARCHAR(191) NOT NULL,
-    `note` VARCHAR(191) NULL,
     `phone` VARCHAR(191) NOT NULL,
+    `password` VARCHAR(191) NOT NULL,
+    `branchId` INTEGER NULL,
+    `classId` INTEGER NULL,
+    `schoolYearId` INTEGER NULL,
+    `groupId` INTEGER NULL,
+    `birthDate` DATETIME(3) NULL,
+    `fullName` VARCHAR(191) NOT NULL,
     `avatarUrl` VARCHAR(191) NULL,
-    `isActive` BOOLEAN NOT NULL DEFAULT true,
-    `isAdmin` BOOLEAN NULL DEFAULT false,
+    `isLocked` BOOLEAN NOT NULL DEFAULT true,
+    `gender` ENUM('MALE', 'FEMALE') NOT NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `User_username_key`(`username`),
-    INDEX `User_branchId_fkey`(`branchId`),
-    INDEX `User_roleId_fkey`(`roleId`),
+    UNIQUE INDEX `Member_VNeID_key`(`VNeID`),
+    UNIQUE INDEX `Member_email_key`(`email`),
+    UNIQUE INDEX `Member_phone_key`(`phone`),
+    INDEX `Member_branchId_fkey`(`branchId`),
+    INDEX `Member_classId_fkey`(`classId`),
+    INDEX `Member_groupId_fkey`(`groupId`),
+    INDEX `Member_schoolYearId_fkey`(`schoolYearId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `MemberGroup` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `branchId` INTEGER NULL,
+    `maxBorrowedItems` INTEGER NOT NULL,
+    `maxBorrowDays` INTEGER NOT NULL,
+    `maxBorrowRequests` INTEGER NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `MemberGroup_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `MemberGroup_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `AccountPackage` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `fee` INTEGER NOT NULL,
+    `durationInMonths` INTEGER NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `memGroupId` INTEGER NOT NULL,
+
+    INDEX `AccountPackage_memGroupId_fkey`(`memGroupId`),
+    UNIQUE INDEX `AccountPackage_code_memGroupId_key`(`code`, `memGroupId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Class` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `branchId` INTEGER NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `Class_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `Class_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `SchoolYear` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `branchId` INTEGER NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `SchoolYear_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `SchoolYear_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Shelf` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `branchId` INTEGER NULL,
+    `description` VARCHAR(191) NULL,
+
+    INDEX `Shelf_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `Shelf_code_branchId_key`(`code`, `branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Rack` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `shelfId` INTEGER NULL,
+    `description` VARCHAR(191) NULL,
+
+    INDEX `Rack_shelfId_fkey`(`shelfId`),
+    UNIQUE INDEX `Rack_code_shelfId_key`(`code`, `shelfId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `BorrowingFeePolicy` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `itemId` INTEGER NOT NULL,
+    `baseFee` DOUBLE NOT NULL,
+    `extensionFee` DOUBLE NOT NULL,
+    `maxBorrowDays` INTEGER NOT NULL,
+    `maxExtensions` INTEGER NOT NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    INDEX `BorrowingFeePolicy_itemId_fkey`(`itemId`),
+    UNIQUE INDEX `BorrowingFeePolicy_itemId_key`(`itemId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -502,28 +570,10 @@ CREATE TABLE `_PermissionToRole` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- AddForeignKey
-ALTER TABLE `MemberGroup` ADD CONSTRAINT `MemberGroup_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `User` ADD CONSTRAINT `User_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `AccountPackage` ADD CONSTRAINT `AccountPackage_memberGroupId_fkey` FOREIGN KEY (`memberGroupId`) REFERENCES `MemberGroup`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Member` ADD CONSTRAINT `Member_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Member` ADD CONSTRAINT `Member_classId_fkey` FOREIGN KEY (`classId`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Member` ADD CONSTRAINT `Member_groupId_fkey` FOREIGN KEY (`groupId`) REFERENCES `MemberGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Member` ADD CONSTRAINT `Member_schoolYearId_fkey` FOREIGN KEY (`schoolYearId`) REFERENCES `SchoolYear`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Class` ADD CONSTRAINT `Class_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `SchoolYear` ADD CONSTRAINT `SchoolYear_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `User` ADD CONSTRAINT `User_roleId_fkey` FOREIGN KEY (`roleId`) REFERENCES `Role`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_borrowerId_fkey` FOREIGN KEY (`borrowerId`) REFERENCES `Member`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -532,19 +582,25 @@ ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_borrowerId_fkey` FOREIGN KEY (
 ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_inventoryId_fkey` FOREIGN KEY (`inventoryId`) REFERENCES `Inventory`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `Item`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_borrowingSlipId_fkey` FOREIGN KEY (`borrowingSlipId`) REFERENCES `BorrowingSlip`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BorrowingSlip` ADD CONSTRAINT `BorrowingSlip_borrowerId_fkey` FOREIGN KEY (`borrowerId`) REFERENCES `Member`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BorrowingSlip` ADD CONSTRAINT `BorrowingSlip_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BorrowingPolicy` ADD CONSTRAINT `BorrowingPolicy_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BorrowingExtension` ADD CONSTRAINT `BorrowingExtension_borrowingId_fkey` FOREIGN KEY (`borrowingId`) REFERENCES `Borrowing`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Inventory` ADD CONSTRAINT `Inventory_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Shelf` ADD CONSTRAINT `Shelf_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `Rack` ADD CONSTRAINT `Rack_shelfId_fkey` FOREIGN KEY (`shelfId`) REFERENCES `Shelf`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Item` ADD CONSTRAINT `Item_borrowerId_fkey` FOREIGN KEY (`borrowerId`) REFERENCES `Member`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -631,10 +687,37 @@ ALTER TABLE `Hashtag` ADD CONSTRAINT `Hashtag_publicationId_fkey` FOREIGN KEY (`
 ALTER TABLE `Language` ADD CONSTRAINT `Language_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Member` ADD CONSTRAINT `Member_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `User` ADD CONSTRAINT `User_roleId_fkey` FOREIGN KEY (`roleId`) REFERENCES `Role`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Member` ADD CONSTRAINT `Member_classId_fkey` FOREIGN KEY (`classId`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Member` ADD CONSTRAINT `Member_groupId_fkey` FOREIGN KEY (`groupId`) REFERENCES `MemberGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Member` ADD CONSTRAINT `Member_schoolYearId_fkey` FOREIGN KEY (`schoolYearId`) REFERENCES `SchoolYear`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `MemberGroup` ADD CONSTRAINT `MemberGroup_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `AccountPackage` ADD CONSTRAINT `AccountPackage_memGroupId_fkey` FOREIGN KEY (`memGroupId`) REFERENCES `MemberGroup`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Class` ADD CONSTRAINT `Class_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `SchoolYear` ADD CONSTRAINT `SchoolYear_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Shelf` ADD CONSTRAINT `Shelf_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Rack` ADD CONSTRAINT `Rack_shelfId_fkey` FOREIGN KEY (`shelfId`) REFERENCES `Shelf`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `BorrowingFeePolicy` ADD CONSTRAINT `BorrowingFeePolicy_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `Item`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Permission` ADD CONSTRAINT `Permission_groupId_fkey` FOREIGN KEY (`groupId`) REFERENCES `PermissionGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
