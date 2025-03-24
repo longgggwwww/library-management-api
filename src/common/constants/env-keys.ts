@@ -21,13 +21,13 @@ console.log('nodeEnv:', nodeEnv);
 validateEnvVar();
 
 function validateEnvVar() {
-    if (!apiKey) {
-        throw new Error('API_KEY must be provided');
-    }
-    if (!accessTokenSecret) {
-        throw new Error('ACCESS_TOKEN_SECRET must be provided');
-    }
-    if (!refreshTokenSecret) {
-        throw new Error('REFRESH_TOKEN_SECRET must be provided');
-    }
+  if (!apiKey) {
+    throw new Error('API_KEY must be provided');
+  }
+  if (!accessTokenSecret) {
+    throw new Error('ACCESS_TOKEN_SECRET must be provided');
+  }
+  if (!refreshTokenSecret) {
+    throw new Error('REFRESH_TOKEN_SECRET must be provided');
+  }
 }

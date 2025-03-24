@@ -7,5 +7,5 @@ export const PERMISSIONS_KEY = 'permissions';
 // Ví dụ: @Permit('CREATE_PERMISSION', 'VIEW_PERMISSION')
 // sẽ kiểm tra xem người dùng có quyền 'CREATE_PERMISSION' hoặc 'VIEW_PERMISSION' không để truy cập vào endpoint
 export const Permit = (
-    ...p: (keyof typeof Permissions)[] // Lấy danh sách quyền truy cập
+  ...p: (keyof typeof Permissions)[] // Lấy danh sách quyền truy cập
 ) => SetMetadata(PERMISSIONS_KEY, p);

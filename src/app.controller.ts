@@ -4,11 +4,11 @@ import { PublicEndpoint } from './auth/decorators/public-endpoint.decorator';
 
 @Controller()
 export class AppController {
-    constructor(private readonly app: AppService) {}
+  constructor(private readonly app: AppService) {}
 
-    @PublicEndpoint()
-    @Get()
-    sayHi() {
-        return this.app.sayHi();
-    }
+  @PublicEndpoint()
+  @Get()
+  sayHi() {
+    return this.app.sayHi();
+  }
 }

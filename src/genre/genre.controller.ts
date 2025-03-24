@@ -1,15 +1,15 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    ParseArrayPipe,
-    ParseIntPipe,
-    Patch,
-    Post,
-    Query,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseArrayPipe,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserCtx } from 'src/auth/decorators/user.decorator';
 import { User } from 'src/auth/types/user.type';
@@ -24,57 +24,57 @@ import { GenreService } from './genre.service';
 @UseGuards(BranchAccessGuard)
 @Controller('genres')
 export class GenreController {
-    constructor(private readonly genre: GenreService) {}
+  constructor(private readonly genre: GenreService) {}
 
-    // Endpoint này sẽ tìm kiếm nhiều genre theo branch
-    @PublicBranch() // Endpoint này không cần quyền truy cập
-    @Get('branch/:branch_id')
-    findByBranch(@Param('branch_id', ParseIntPipe) branchId: number) {
-        return this.genre.findMany(branchId);
-    }
+  // Endpoint này sẽ tìm kiếm nhiều genre theo branch
+  @PublicBranch() // Endpoint này không cần quyền truy cập
+  @Get('branch/:branch_id')
+  findByBranch(@Param('branch_id', ParseIntPipe) branchId: number) {
+    return this.genre.findMany(branchId);
+  }
 
-    // --------------Các endpoint dưới đây sẽ được bảo vệ bởi quyền truy cập----------------
+  // --------------Các endpoint dưới đây sẽ được bảo vệ bởi quyền truy cập----------------
 
-    @Post()
-    create(@UserCtx() user: User, @Body() dto: CreateGenreDto) {
-        return this.genre.create(user.branchId, dto);
-    }
+  @Post()
+  create(@UserCtx() user: User, @Body() dto: CreateGenreDto) {
+    return this.genre.create(user.branchId, dto);
+  }
 
-    @Get()
-    findMany(@UserCtx() user: User) {
-        return this.genre.findMany(user.branchId);
-    }
+  @Get()
+  findMany(@UserCtx() user: User) {
+    return this.genre.findMany(user.branchId);
+  }
 
-    @Get(':id')
-    find(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
-        return this.genre.find(user.branchId, id);
-    }
+  @Get(':id')
+  find(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.genre.find(user.branchId, id);
+  }
 
-    @Patch(':id')
-    update(
-        @UserCtx() user: User,
-        @Param('id', ParseIntPipe) id: number,
-        @Body() dto: UpdateGenreDto,
-    ) {
-        return this.genre.update(user.branchId, id, dto);
-    }
+  @Patch(':id')
+  update(
+    @UserCtx() user: User,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateGenreDto,
+  ) {
+    return this.genre.update(user.branchId, id, dto);
+  }
 
-    @Delete('batch')
-    deleteBatch(
-        @UserCtx() user: User,
-        @Query(
-            'ids',
-            new ParseArrayPipe({
-                items: Number,
-            }),
-        )
-        ids: number[],
-    ) {
-        return this.genre.deleteBatch(user.branchId, ids);
-    }
+  @Delete('batch')
+  deleteBatch(
+    @UserCtx() user: User,
+    @Query(
+      'ids',
+      new ParseArrayPipe({
+        items: Number,
+      }),
+    )
+    ids: number[],
+  ) {
+    return this.genre.deleteBatch(user.branchId, ids);
+  }
 
-    @Delete(':id')
-    delete(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
-        return this.genre.delete(user.branchId, id);
-    }
+  @Delete(':id')
+  delete(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.genre.delete(user.branchId, id);
+  }
 }

@@ -34,52 +34,52 @@ import { SettingModule } from './setting/setting.module';
 import { UserModule } from './user/user.module';
 
 @Module({
-    imports: [
-        // Thêm module Throttler để hạn chế số lượng request
-        ThrottlerModule.forRoot({
-            throttlers: [
-                {
-                    ttl: throttleTTL,
-                    limit: throttleLimit,
-                },
-            ],
-        }),
-        CustomPrismaModule.forRootAsync({
-            name: CUSTOM_PRISMA_CLIENT,
-            useClass: ExtendedPrismaConfigService,
-        }),
-        PrismaModule,
-        AuthModule,
-        RoleModule,
-        PermModule,
-        UserModule,
-        BranchModule,
-        SettingModule,
-        CategoryModule,
-        PublicationModule,
-        PublisherModule,
-        LanguageModule,
-        AuthorModule,
-        GenreModule,
-        HashtagModule,
-        ItemModule,
-        InventoryModule,
-        ClassModule,
-        SchoolYearModule,
-        MemberModule,
-        MemberGroupModule,
-        AccountPackageModule,
-        BorrowingModule,
-        PermGroupModule,
-        CustomPrismaModule,
-    ],
-    controllers: [AppController],
-    providers: [
-        // Áp dụng các guard toàn cục để bảo mật API
-        { provide: APP_GUARD, useClass: ApiKeyAuthGuard },
-        { provide: APP_GUARD, useClass: TokenAuthGuard },
-        { provide: APP_GUARD, useClass: AuthorizationGuard },
-        AppService,
-    ],
+  imports: [
+    // Thêm module Throttler để hạn chế số lượng request
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: throttleTTL,
+          limit: throttleLimit,
+        },
+      ],
+    }),
+    CustomPrismaModule.forRootAsync({
+      name: CUSTOM_PRISMA_CLIENT,
+      useClass: ExtendedPrismaConfigService,
+    }),
+    PrismaModule,
+    AuthModule,
+    RoleModule,
+    PermModule,
+    UserModule,
+    BranchModule,
+    SettingModule,
+    CategoryModule,
+    PublicationModule,
+    PublisherModule,
+    LanguageModule,
+    AuthorModule,
+    GenreModule,
+    HashtagModule,
+    ItemModule,
+    InventoryModule,
+    ClassModule,
+    SchoolYearModule,
+    MemberModule,
+    MemberGroupModule,
+    AccountPackageModule,
+    BorrowingModule,
+    PermGroupModule,
+    CustomPrismaModule,
+  ],
+  controllers: [AppController],
+  providers: [
+    // Áp dụng các guard toàn cục để bảo mật API
+    { provide: APP_GUARD, useClass: ApiKeyAuthGuard },
+    { provide: APP_GUARD, useClass: TokenAuthGuard },
+    { provide: APP_GUARD, useClass: AuthorizationGuard },
+    AppService,
+  ],
 })
 export class AppModule {}

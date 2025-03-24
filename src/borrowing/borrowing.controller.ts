@@ -1,12 +1,12 @@
 import {
-    Body,
-    Controller,
-    Delete,
-    Get,
-    Param,
-    Patch,
-    Post,
-    UseGuards,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+  UseGuards,
 } from '@nestjs/common';
 import { BranchAccessGuard } from 'src/branch/branch-access.guard';
 import { BorrowingService } from './borrowing.service';
@@ -17,33 +17,33 @@ import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 @UseGuards(BranchAccessGuard)
 @Controller('borrowings')
 export class BorrowingController {
-    constructor(private readonly borrowing: BorrowingService) {}
+  constructor(private readonly borrowing: BorrowingService) {}
 
-    @Post()
-    create(@Body() dto: CreateBorrowingDto) {
-        return this.borrowing.create(dto);
-    }
+  @Post()
+  create(@Body() dto: CreateBorrowingDto) {
+    return this.borrowing.create(dto);
+  }
 
-    @Get()
-    findAll() {
-        return this.borrowing.findAll();
-    }
+  @Get()
+  findAll() {
+    return this.borrowing.findAll();
+  }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.borrowing.findOne(+id);
-    }
+  @Get(':id')
+  findOne(@Param('id') id: string) {
+    return this.borrowing.findOne(+id);
+  }
 
-    @Patch(':id')
-    update(
-        @Param('id') id: string,
-        @Body() updateBorrowingDto: UpdateBorrowingDto,
-    ) {
-        return this.borrowing.update(+id, updateBorrowingDto);
-    }
+  @Patch(':id')
+  update(
+    @Param('id') id: string,
+    @Body() updateBorrowingDto: UpdateBorrowingDto,
+  ) {
+    return this.borrowing.update(+id, updateBorrowingDto);
+  }
 
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.borrowing.remove(+id);
-    }
+  @Delete(':id')
+  remove(@Param('id') id: string) {
+    return this.borrowing.remove(+id);
+  }
 }

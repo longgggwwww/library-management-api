@@ -1,20 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { CustomPrismaClientFactory } from 'nestjs-prisma';
 import {
-    type ExtendedPrismaClient,
-    extendedPrismaClient,
+  type ExtendedPrismaClient,
+  extendedPrismaClient,
 } from './custom-prisma.extension';
 
 @Injectable()
 export class ExtendedPrismaConfigService
-    implements CustomPrismaClientFactory<ExtendedPrismaClient>
+  implements CustomPrismaClientFactory<ExtendedPrismaClient>
 {
-    constructor() {
-        // TODO inject any other service here like the `ConfigService`
-    }
+  constructor() {
+    // TODO inject any other service here like the `ConfigService`
+  }
 
-    createPrismaClient(): ExtendedPrismaClient {
-        // you could pass options to your `PrismaClient` instance here
-        return extendedPrismaClient;
-    }
+  createPrismaClient(): ExtendedPrismaClient {
+    // you could pass options to your `PrismaClient` instance here
+    return extendedPrismaClient;
+  }
 }

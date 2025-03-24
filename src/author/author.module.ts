@@ -4,7 +4,7 @@ import { AuthorController } from './author.controller';
 import { AuthorService } from './author.service';
 
 @Module({
-    controllers: [AuthorController],
-    providers: [AuthorService, PrismaService],
+  controllers: [AuthorController],
+  providers: [AuthorService, PrismaService],
 })
 export class AuthorModule {}

@@ -4,7 +4,7 @@ import { MemberGroupController } from './member-group.controller';
 import { MemberGroupService } from './member-group.service';
 
 @Module({
-    controllers: [MemberGroupController],
-    providers: [MemberGroupService, PrismaService],
+  controllers: [MemberGroupController],
+  providers: [MemberGroupService, PrismaService],
 })
 export class MemberGroupModule {}

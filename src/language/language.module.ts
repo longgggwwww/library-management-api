@@ -4,7 +4,7 @@ import { LanguageController } from './language.controller';
 import { LanguageService } from './language.service';
 
 @Module({
-    controllers: [LanguageController],
-    providers: [LanguageService, PrismaService],
+  controllers: [LanguageController],
+  providers: [LanguageService, PrismaService],
 })
 export class LanguageModule {}

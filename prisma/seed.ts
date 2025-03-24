@@ -21,37 +21,37 @@ import { seedSettings } from './seeds/settings.seed';
 import { seedAdminUser, seedUsers } from './seeds/users.seed';
 
 async function main() {
-    // Seed dữ liệu cho các bảng
-    const rootBranch = await seedBranches('branches.csv');
-    const perms = await seedPerms('permissions.csv');
-    await seedPermGroups('permission-groups.csv');
-    await seedGenres('genres.csv');
-    await seedAuthors('authors.csv');
-    await seedCategories('categories.csv');
-    await seedLanguages('languages.csv');
-    await seedPublishers('publishers.csv');
-    const rootRole = await seedRoles('roles.csv', perms);
-    await seedAdminUser(rootRole, rootBranch);
-    await seedSettings('setting.csv');
-    await seedUsers('users.csv');
-    await seedPublications('publications.csv');
-    await seedItemConditions('item-conditions.csv');
-    await seedInventories('inventories.csv');
-    await seedInventoryReceipts('inventory-receipts.csv');
-    await seedInventoriesReceiptPublications(
-        'inventories-receipt-publications.csv',
-    );
-    await seedClasses('classes.csv');
-    await seedSchoolYears('school-years.csv');
-    await seedMemberGroups('member-groups.csv');
-    await seedMembers('members.csv');
+  // Seed dữ liệu cho các bảng
+  const rootBranch = await seedBranches('branches.csv');
+  const perms = await seedPerms('permissions.csv');
+  await seedPermGroups('permission-groups.csv');
+  await seedGenres('genres.csv');
+  await seedAuthors('authors.csv');
+  await seedCategories('categories.csv');
+  await seedLanguages('languages.csv');
+  await seedPublishers('publishers.csv');
+  const rootRole = await seedRoles('roles.csv', perms);
+  await seedAdminUser(rootRole, rootBranch);
+  await seedSettings('setting.csv');
+  await seedUsers('users.csv');
+  await seedPublications('publications.csv');
+  await seedItemConditions('item-conditions.csv');
+  await seedInventories('inventories.csv');
+  await seedInventoryReceipts('inventory-receipts.csv');
+  await seedInventoriesReceiptPublications(
+    'inventories-receipt-publications.csv',
+  );
+  await seedClasses('classes.csv');
+  await seedSchoolYears('school-years.csv');
+  await seedMemberGroups('member-groups.csv');
+  await seedMembers('members.csv');
 }
 main()
-    .then(async () => {
-        await prisma.$disconnect();
-    })
-    .catch(async (err) => {
-        console.log(err);
-        await prisma.$disconnect();
-        process.exit(1);
-    });
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (err) => {
+    console.log(err);
+    await prisma.$disconnect();
+    process.exit(1);
+  });

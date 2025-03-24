@@ -4,7 +4,7 @@ import { HashtagController } from './hashtag.controller';
 import { HashtagService } from './hashtag.service';
 
 @Module({
-    controllers: [HashtagController],
-    providers: [HashtagService, PrismaService],
+  controllers: [HashtagController],
+  providers: [HashtagService, PrismaService],
 })
 export class HashtagModule {}

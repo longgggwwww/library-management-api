@@ -4,7 +4,7 @@ import { ClassController } from './class.controller';
 import { ClassService } from './class.service';
 
 @Module({
-    controllers: [ClassController],
-    providers: [ClassService, PrismaService],
+  controllers: [ClassController],
+  providers: [ClassService, PrismaService],
 })
 export class ClassModule {}
