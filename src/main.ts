@@ -33,6 +33,6 @@ async function bootstrap() {
     // Khởi động ứng dụng trên cổng được chỉ định
     await app.listen(port);
 
-    console.log(`Ứng dụng đang chạy trên cổng: ${port}✨`);
+    console.log(`App is running on port: ${port}✨`);
 }
 bootstrap();
