@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { PrismaService } from 'nestjs-prisma';
@@ -17,14 +16,11 @@ import { LocalStrategy } from './local.strategy';
     imports: [
         PassportModule,
         // Cấu hình module JwtModule để sử dụng JWT
-        JwtModule.registerAsync({
-            inject: [ConfigService],
-            useFactory: (conf: ConfigService) => ({
-                secret: accessTokenSecret,
-                signOptions: {
-                    expiresIn: accessTokenTTL,
-                },
-            }),
+        JwtModule.register({
+            secret: accessTokenSecret,
+            signOptions: {
+                expiresIn: accessTokenTTL,
+            },
         }),
     ],
     controllers: [AuthController],

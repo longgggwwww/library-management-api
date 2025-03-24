@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomPrismaModule, PrismaModule } from 'nestjs-prisma';
@@ -36,7 +35,6 @@ import { UserModule } from './user/user.module';
 
 @Module({
     imports: [
-        ConfigModule.forRoot({ isGlobal: true }),
         // Thêm module Throttler để hạn chế số lượng request
         ThrottlerModule.forRoot({
             throttlers: [

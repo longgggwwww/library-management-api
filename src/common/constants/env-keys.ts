@@ -1,17 +1,22 @@
-import { ConfigService } from '@nestjs/config';
+import * as dotenv from 'dotenv';
+
+// Load file .env
+dotenv.config();
 
 // Tạo một đối tượng cấu hình
-const c = new ConfigService();
 
 // Lấy các giá trị từ biến môi trường
-export const port = c.get<number>('PORT', 3000);
-export const apiKey = c.get<string>('API_KEY');
-export const accessTokenSecret = c.get<string>('ACCESS_TOKEN_SECRET'); // Secret cho access token
-export const accessTokenTTL = c.get<string>('ACCESS_TOKEN_TTL', '15m'); // Thời gian hết hạn của token
-export const refreshTokenSecret = c.get<string>('REFRESH_TOKEN_SECRET'); // Secret cho refresh token
-export const refreshTokenTTL = c.get<string>('REFRESH_TOKEN_TTL', '7d');
-export const throttleTTL = c.get<number>('THROTTLE_TTL', 10); // Thời gian giới hạn
-export const throttleLimit = c.get<number>('THROTTLE_LIMIT', 10); // Số lần truy cập tối đa
+export const nodeEnv = process.env.NODE_ENV || 'development';
+export const port = parseInt(process.env.PORT) || 3000;
+export const apiKey = process.env.API_KEY;
+export const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
+export const accessTokenTTL = process.env.ACCESS_TOKEN_TTL || '15m';
+export const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
+export const refreshTokenTTL = process.env.REFRESH_TOKEN_TTL || '7d';
+export const throttleTTL = parseInt(process.env.THROTTLE_TTL) || 60;
+export const throttleLimit = parseInt(process.env.THROTTLE_LIMIT) || 10;
+
+console.log('nodeEnv:', nodeEnv);
 
 validateEnvVar();
 
