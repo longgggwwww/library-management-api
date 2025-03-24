@@ -1,15 +1,42 @@
-export class CreateBorrowingDto {
-  code: string;
+import { Type } from 'class-transformer';
+import {
+  IsArray,
+  IsDate,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  ValidateNested,
+} from 'class-validator';
 
-  memberId: number;
+export class CreateBorrowingSlipDto {
+  @IsString()
+  code: string; // Mã phiếu mượn sách
 
-  borrowingDate: Date;
+  @IsInt()
+  borrowerId: number; // ID người mượn sách
 
-  returnDate: Date;
+  @IsDate()
+  borrowingDate: Date; // Ngày mượn sách
 
-  status: string;
+  @IsDate()
+  dueDate: Date; // Ngày phải trả sách
 
-  note: string;
+  @IsString()
+  @IsOptional()
+  note?: string; // Ghi chú (tùy chọn)
 
-  items: number[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => LoanTransactionDto)
+  borrowings: LoanTransactionDto[]; // Danh sách sách mượn
+}
+
+export class LoanTransactionDto {
+  @IsInt()
+  itemId: number; // ID sách
+
+  @IsNumber()
+  @IsOptional()
+  borrowingFee?: number; // Phí mượn sách (nếu cần)
 }

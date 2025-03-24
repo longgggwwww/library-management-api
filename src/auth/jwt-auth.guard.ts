@@ -11,11 +11,11 @@ export class TokenAuthGuard extends AuthGuard('jwt') {
 
   canActivate(c: ExecutionContext) {
     // Kiểm tra xem endpoint có được đánh dấu là public không
-    const isAccessPublic = this.refl.getAllAndOverride<boolean>(
-      IS_PUBLIC_ACCESS,
-      [c.getHandler(), c.getClass()],
-    );
-    if (isAccessPublic) {
+    const isPublic = this.refl.getAllAndOverride<boolean>(IS_PUBLIC_ACCESS, [
+      c.getHandler(),
+      c.getClass(),
+    ]);
+    if (isPublic) {
       return true;
     }
 

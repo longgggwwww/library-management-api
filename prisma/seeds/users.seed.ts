@@ -26,7 +26,7 @@ function copyPhoto(photo: string | undefined) {
 }
 
 // Hàm cập nhật user
-async function createAdminData(adminRole: Role, _branch: Branch) {
+async function createAdminData(adminRole: Role, branch: Branch) {
   const hashedPwd = await hashPwd(process.env.ADMIN_PASSWORD || '123456');
   return {
     username: process.env.ADMIN_USERNAME || 'admin',
@@ -36,6 +36,7 @@ async function createAdminData(adminRole: Role, _branch: Branch) {
     phone: process.env.ADMIN_PHONE_NUMBER,
     fullName: 'Administrator',
     roleId: adminRole.id,
+    branchId: branch.id,
   };
 }
 

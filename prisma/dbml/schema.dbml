@@ -16,7 +16,6 @@ Table Branch {
   updatedAt DateTime [not null]
   borrowingPolicy BorrowingPolicy
   authors Author [not null]
-  borrwings Borrowing [not null]
   borrowingSlips BorrowingSlip [not null]
   categories Category [not null]
   classes Class [not null]
@@ -69,23 +68,22 @@ Table Borrowing {
   dueDate DateTime [not null]
   returnedAt DateTime
   itemId Int [unique, not null]
-  branchId Int
   status BorrowingStatus [not null, default: 'BORROWED']
   borrowingFee Float [not null]
   borrower Member [not null]
-  branch Branch
   item Item [not null]
   borrowingSlipId Int
   borrowingSlip BorrowingSlip
   extensions BorrowingExtension [not null]
 
   indexes {
-    (code, branchId) [unique]
+    (code, borrowingSlipId) [unique]
   }
 }
 
 Table BorrowingSlip {
   id Int [pk, increment]
+  note String
   code String [not null]
   borrowerId Int [not null]
   branchId Int
@@ -386,11 +384,11 @@ Table Member {
   branchId Int
   classId Int
   schoolYearId Int
-  groupId Int
+  memGroupId Int
   birthDate DateTime
   fullName String [not null]
   avatarUrl String
-  isLocked Boolean [not null, default: true]
+  isLocked Boolean [not null, default: false]
   gender Gender [not null]
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
@@ -398,7 +396,7 @@ Table Member {
   borrowedItems Item [not null]
   branch Branch
   class Class
-  group MemberGroup
+  memberGroup MemberGroup
   schoolYear SchoolYear
   borrowingSlips BorrowingSlip [not null]
 }
@@ -427,7 +425,7 @@ Table AccountPackage {
   id Int [pk, increment]
   code String [not null]
   name String [not null]
-  fee Int [not null]
+  fee Float [not null]
   durationInMonths Int [not null]
   description String
   memGroupId Int [not null]
@@ -526,8 +524,8 @@ Table Permission {
   id String [pk]
   name String [not null]
   description String
-  groupId Int
-  group PermissionGroup
+  permGroupId Int
+  permGroup PermissionGroup
   roles Role [not null]
 }
 
@@ -607,8 +605,6 @@ Ref: User.roleId > Role.id
 
 Ref: Borrowing.borrowerId > Member.id
 
-Ref: Borrowing.branchId > Branch.id
-
 Ref: Borrowing.itemId - Item.id
 
 Ref: Borrowing.borrowingSlipId > BorrowingSlip.id [delete: Cascade]
@@ -683,7 +679,7 @@ Ref: Member.branchId > Branch.id
 
 Ref: Member.classId > Class.id
 
-Ref: Member.groupId > MemberGroup.id
+Ref: Member.memGroupId > MemberGroup.id
 
 Ref: Member.schoolYearId > SchoolYear.id
 
@@ -701,6 +697,6 @@ Ref: Rack.shelfId > Shelf.id
 
 Ref: BorrowingFeePolicy.itemId - Item.id [delete: Cascade]
 
-Ref: Permission.groupId > PermissionGroup.id
+Ref: Permission.permGroupId > PermissionGroup.id
 
 Ref: Setting.defaultUserRoleId > Role.id

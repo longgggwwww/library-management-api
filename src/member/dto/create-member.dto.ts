@@ -49,7 +49,7 @@ export class CreateMemberDto {
 
   @IsNotEmpty()
   @IsNumber()
-  groupId: number; // ID của nhóm
+  memberGroupId: number; // ID của nhóm
 
   @IsNotEmpty()
   @IsNumber()

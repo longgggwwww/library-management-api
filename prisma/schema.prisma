@@ -26,7 +26,6 @@ model Branch {
   updatedAt         DateTime           @updatedAt // Thời gian cập nhật cuối
   borrowingPolicy   BorrowingPolicy? // Chính sách mượn sách của chi nhánh
   authors           Author[] // Danh sách tác giả liên kết với chi nhánh
-  borrwings         Borrowing[] // Danh sách các lần mượn sách
   borrowingSlips    BorrowingSlip[] // Danh sách phiếu mượn sách
   categories        Category[] // Danh mục sách
   classes           Class[] // Danh sách lớp học
@@ -83,19 +82,16 @@ model Borrowing {
   dueDate         DateTime // Thời gian phải trả sách
   returnedAt      DateTime? // Thời gian trả sách
   itemId          Int                  @unique // ID sách mượn, duy nhất
-  branchId        Int? // ID chi nhánh
   status          BorrowingStatus      @default(BORROWED) // Trạng thái mượn sách
   borrowingFee    Float // Phí mượn sách
   borrower        Member               @relation(fields: [borrowerId], references: [id]) // Liên kết với người mượn sách
-  branch          Branch?              @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
   item            Item                 @relation(fields: [itemId], references: [id]) // Liên kết với sách mượn
   borrowingSlipId Int? // ID phiếu mượn sách
   borrowingSlip   BorrowingSlip?       @relation(fields: [borrowingSlipId], references: [id], onDelete: Cascade) // Liên kết với phiếu mượn sách
   extensions      BorrowingExtension[] // Danh sách gia hạn mượn sách
 
-  @@unique([code, branchId])
+  @@unique([code, borrowingSlipId])
   @@index([borrowerId], map: "Borrowing_borrowerId_fkey")
-  @@index([branchId], map: "Borrowing_branchId_fkey")
   @@index([borrowingSlipId], map: "Borrowing_borrowingSlipId_fkey")
 }
 
@@ -103,6 +99,7 @@ model Borrowing {
 model BorrowingSlip {
   id            Int         @id @default(autoincrement())
   code          String // Mã phiếu mượn sách
+  note          String? // Ghi chú
   borrowerId    Int // ID người mượn sách
   branchId      Int? // ID chi nhánh
   borrowingDate DateTime // Ngày mượn sách
@@ -431,11 +428,11 @@ model Member {
   branchId       Int? // ID chi nhánh
   classId        Int? // ID lớp học
   schoolYearId   Int? // ID niên khóa
-  groupId        Int? // ID nhóm thành viên
+  memGroupId     Int? // ID nhóm thành viên 
   birthDate      DateTime? // Ngày sinh
   fullName       String // Họ và tên đầy đủ
   avatarUrl      String? // URL ảnh đại diện
-  isLocked       Boolean         @default(true) // Trạng thái khóa tài khoản
+  isLocked       Boolean         @default(false) // Trạng thái khóa tài khoản
   gender         Gender // Giới tính
   createdAt      DateTime        @default(now()) // Thời gian tạo
   updatedAt      DateTime        @updatedAt // Thời gian cập nhật cuối
@@ -443,13 +440,13 @@ model Member {
   borrowedItems  Item[] // Danh sách các sách đã mượn
   branch         Branch?         @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
   class          Class?          @relation(fields: [classId], references: [id]) // Liên kết với lớp học
-  group          MemberGroup?    @relation(fields: [groupId], references: [id]) // Liên kết với nhóm thành viên
+  memberGroup    MemberGroup?    @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
   schoolYear     SchoolYear?     @relation(fields: [schoolYearId], references: [id]) // Liên kết với niên khóa
   borrowingSlips BorrowingSlip[] // Danh sách phiếu mượn sách
 
   @@index([branchId], map: "Member_branchId_fkey")
   @@index([classId], map: "Member_classId_fkey")
-  @@index([groupId], map: "Member_groupId_fkey")
+  @@index([memGroupId], map: "Member_memGroupId_fkey")
   @@index([schoolYearId], map: "Member_schoolYearId_fkey")
 }
 
@@ -478,7 +475,7 @@ model AccountPackage {
   id               Int         @id @default(autoincrement())
   code             String // Mã gói tài khoản
   name             String // Tên gói tài khoản
-  fee              Int // Phí gói tài khoản
+  fee              Float // Phí gói tài khoản
   durationInMonths Int // Thời gian sử dụng gói tài khoản (tính bằng tháng)
   description      String? // Mô tả gói tài khoản
   memGroupId       Int // ID nhóm thành viên
@@ -616,11 +613,11 @@ model Permission {
   id          String           @id @unique // ID quyền, duy nhất
   name        String // Tên quyền
   description String? // Mô tả quyền
-  groupId     Int? // ID nhóm quyền
-  group       PermissionGroup? @relation("PermissionToGroup", fields: [groupId], references: [id]) // Liên kết với nhóm quyền
+  permGroupId Int? // ID nhóm quyền 
+  permGroup   PermissionGroup? @relation("PermissionToGroup", fields: [permGroupId], references: [id]) // Liên kết với nhóm quyền
   roles       Role[]           @relation("PermissionToRole") // Danh sách vai trò có quyền này
 
-  @@index([groupId], map: "Permission_groupId_fkey")
+  @@index([permGroupId], map: "Permission_groupId_fkey")
 }
 
 // Model nhóm quyền

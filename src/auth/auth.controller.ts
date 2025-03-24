@@ -44,4 +44,12 @@ export class AuthController {
   loginAsMember(@Body() dto: LoginAsMemberDto) {
     return this.auth.loginAsMember(dto);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @PublicEndpoint()
+  @Post('token/refresh-member')
+  // Lấy token mới với tư cách thành viên
+  refreshTkAsMember(@Body() dto: RefreshTokenDto) {
+    return this.auth.refreshTkAsMember(dto);
+  }
 }

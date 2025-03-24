@@ -43,6 +43,8 @@ export class AuthService {
   async login(payload: User) {
     const user = await this.user.find(payload.id);
 
+    console.log('user ', user);
+
     // Tạo access token chứa thông tin người dùng và quyền
     const accessToken = this.jwt.sign(<User>{
       id: user.id,
@@ -114,27 +116,27 @@ export class AuthService {
       },
     },
     class: true,
-    group: true,
+    memberGroup: true,
     schoolYear: true,
   };
 
   async loginAsMember(dto: LoginAsMemberDto) {
     const { method, username, password } = dto;
 
-    // Kiểm tra phương thức đăng nhập
+    // Tìm người dùng theo username hoặc email
     const user = await this.prisma.client.member.findFirst({
       where: {
-        OR: [
-          method === 'VNeID' && { VNeID: username },
-          method === 'email' && { email: username },
-          method === 'phone' && { phone: username },
-        ],
-        isLocked: false,
+        [method]: username,
       },
       include: this.memIncludeOpts,
     });
     if (!user) {
       throw new BadRequestException('Invalid username or password');
+    }
+
+    // Kiểm tra trạn thái tài khoản
+    if (user.isLocked) {
+      throw new BadRequestException('Account is locked');
     }
 
     // Kiểm tra mật khẩu
@@ -161,7 +163,7 @@ export class AuthService {
     };
   }
 
-  async refreshToeknAsMember(dto: RefreshTokenDto) {
+  async refreshTkAsMember(dto: RefreshTokenDto) {
     try {
       // Giải mã token để lấy thông tin người dùng
       const decoded = this.jwt.verify(dto.refreshToken, {

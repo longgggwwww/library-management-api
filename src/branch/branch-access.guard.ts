@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  ForbiddenException,
+  Injectable,
+} from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { IS_PUBLIC_BRANCH_KEY } from './decorators/public-branch.decorator';
 
@@ -12,21 +17,17 @@ export class BranchAccessGuard implements CanActivate {
       IS_PUBLIC_BRANCH_KEY,
       [c.getHandler(), c.getClass()],
     );
-    if (isBranchPublic) return true;
+    if (isBranchPublic) {
+      return true;
+    }
 
     // Kiểm tra xem người dùng có branchId không
     const req = c.switchToHttp().getRequest();
-    if (req.user && req.user.branchId) {
-      if (!req.user.branchId) return false;
+    if (req.user) {
+      if (!req.user.branchId) {
+        throw new ForbiddenException('Branch access denied');
+      }
       return true;
     }
-  }
-
-  // Thông báo branchId không tồn tại
-  handleRequest(err, user) {
-    if (err || !user) {
-      throw err || new Error('Branch ID is required');
-    }
-    return user;
   }
 }

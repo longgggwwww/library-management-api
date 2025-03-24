@@ -68,7 +68,7 @@ export class MemberController {
     )
     ids: number[],
   ) {
-    return this.member.deleteBatch(user.branchId, ids);
+    return this.member.deleteMany(user.branchId, ids);
   }
 
   // Endpoint này sẽ xóa một member

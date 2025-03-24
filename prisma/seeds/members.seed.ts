@@ -97,7 +97,7 @@ async function upsertMember(member: Member, avatarUrl: string | null) {
           },
         },
       },
-      group: {
+      memberGroup: {
         connect: {
           code_branchId: {
             code: member.group_code,
@@ -113,7 +113,7 @@ async function upsertMember(member: Member, avatarUrl: string | null) {
       email: member.email,
       phone: member.phone,
       birthDate: new Date(member.birth_day),
-      isLocked: !!member.is_locked,
+      isLocked: member.is_locked === 'true',
       gender: member.gender as $Enums.Gender,
       class: {
         connect: {
@@ -131,7 +131,7 @@ async function upsertMember(member: Member, avatarUrl: string | null) {
           },
         },
       },
-      group: {
+      memberGroup: {
         connect: {
           code_branchId: {
             code: member.group_code,

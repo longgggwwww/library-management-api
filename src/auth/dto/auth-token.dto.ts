@@ -1,8 +1,14 @@
 import { IsEnum, IsString } from 'class-validator';
 
+enum MethodLoginAsMember {
+  VNeID = 'VNeID',
+  email = 'email',
+  phone = 'phone',
+}
+
 export class LoginAsMemberDto {
-  @IsEnum(['VNeID', 'email', 'phone'])
-  method: 'VNeID' | 'email' | 'phone';
+  @IsEnum(MethodLoginAsMember)
+  method: MethodLoginAsMember;
 
   @IsString()
   username: string;
