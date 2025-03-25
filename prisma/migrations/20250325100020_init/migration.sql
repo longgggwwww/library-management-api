@@ -1,4 +1,41 @@
 -- CreateTable
+CREATE TABLE `Role` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `name` VARCHAR(191) NOT NULL,
+    `code` VARCHAR(191) NOT NULL,
+    `color` VARCHAR(191) NULL,
+    `description` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+
+    UNIQUE INDEX `Role_code_key`(`code`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `Permission` (
+    `id` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NULL,
+    `permGroupId` INTEGER NULL,
+
+    UNIQUE INDEX `Permission_id_key`(`id`),
+    INDEX `Permission_groupId_fkey`(`permGroupId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `PermissionGroup` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `code` VARCHAR(191) NOT NULL,
+    `name` VARCHAR(191) NOT NULL,
+    `description` VARCHAR(191) NULL,
+
+    UNIQUE INDEX `PermissionGroup_code_key`(`code`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Branch` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
@@ -52,11 +89,14 @@ CREATE TABLE `Borrowing` (
     `itemId` INTEGER NOT NULL,
     `status` ENUM('BORROWED', 'RETURNED', 'OVERDUE') NOT NULL DEFAULT 'BORROWED',
     `borrowingFee` DOUBLE NOT NULL,
+    `lateFee` DOUBLE NULL,
     `borrowingSlipId` INTEGER NULL,
+    `returnSlipId` INTEGER NULL,
 
     UNIQUE INDEX `Borrowing_itemId_key`(`itemId`),
     INDEX `Borrowing_borrowerId_fkey`(`borrowerId`),
     INDEX `Borrowing_borrowingSlipId_fkey`(`borrowingSlipId`),
+    INDEX `Borrowing_returnSlipId_fkey`(`returnSlipId`),
     UNIQUE INDEX `Borrowing_code_borrowingSlipId_key`(`code`, `borrowingSlipId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
@@ -64,8 +104,8 @@ CREATE TABLE `Borrowing` (
 -- CreateTable
 CREATE TABLE `BorrowingSlip` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `note` VARCHAR(191) NULL,
     `code` VARCHAR(191) NOT NULL,
+    `note` VARCHAR(191) NULL,
     `borrowerId` INTEGER NOT NULL,
     `branchId` INTEGER NULL,
     `borrowingDate` DATETIME(3) NOT NULL,
@@ -250,6 +290,25 @@ CREATE TABLE `PublicationAlias` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
+CREATE TABLE `PublicationRequest` (
+    `id` INTEGER NOT NULL AUTO_INCREMENT,
+    `memberId` INTEGER NOT NULL,
+    `title` VARCHAR(191) NOT NULL,
+    `author` VARCHAR(191) NULL,
+    `status` ENUM('PENDING', 'APPROVED', 'REJECTED') NOT NULL DEFAULT 'PENDING',
+    `note` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
+    `approvedByUserId` INTEGER NULL,
+    `branchId` INTEGER NULL,
+
+    INDEX `PublicationRequest_memberId_fkey`(`memberId`),
+    INDEX `PublicationRequest_approvedByUserId_fkey`(`approvedByUserId`),
+    INDEX `PublicationRequest_branchId_fkey`(`branchId`),
+    PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
 CREATE TABLE `Author` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
@@ -375,7 +434,7 @@ CREATE TABLE `Member` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `MemberGroup` (
+CREATE TABLE `MembershipGroup` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
@@ -387,23 +446,23 @@ CREATE TABLE `MemberGroup` (
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    INDEX `MemberGroup_branchId_fkey`(`branchId`),
-    UNIQUE INDEX `MemberGroup_code_branchId_key`(`code`, `branchId`),
+    INDEX `MembershipGroup_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `MembershipGroup_code_branchId_key`(`code`, `branchId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `AccountPackage` (
+CREATE TABLE `MembershipPlan` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
     `name` VARCHAR(191) NOT NULL,
     `fee` DOUBLE NOT NULL,
     `durationInMonths` INTEGER NOT NULL,
     `description` VARCHAR(191) NULL,
-    `memGroupId` INTEGER NOT NULL,
+    `membershipGroupId` INTEGER NOT NULL,
 
-    INDEX `AccountPackage_memGroupId_fkey`(`memGroupId`),
-    UNIQUE INDEX `AccountPackage_code_memGroupId_key`(`code`, `memGroupId`),
+    INDEX `MembershipPlan_membershipGroupId_fkey`(`membershipGroupId`),
+    UNIQUE INDEX `MembershipPlan_code_membershipGroupId_key`(`code`, `membershipGroupId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -478,39 +537,37 @@ CREATE TABLE `BorrowingFeePolicy` (
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Role` (
+CREATE TABLE `LostReport` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
-    `name` VARCHAR(191) NOT NULL,
-    `code` VARCHAR(191) NOT NULL,
-    `color` VARCHAR(191) NULL,
-    `description` VARCHAR(191) NULL,
+    `memberId` INTEGER NOT NULL,
+    `itemId` INTEGER NOT NULL,
+    `branchId` INTEGER NULL,
+    `reportDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `note` VARCHAR(191) NULL,
     `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
     `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `Role_code_key`(`code`),
+    INDEX `LostReport_memberId_fkey`(`memberId`),
+    INDEX `LostReport_itemId_fkey`(`itemId`),
+    INDEX `LostReport_branchId_fkey`(`branchId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
-CREATE TABLE `Permission` (
-    `id` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
-    `permGroupId` INTEGER NULL,
-
-    UNIQUE INDEX `Permission_id_key`(`id`),
-    INDEX `Permission_groupId_fkey`(`permGroupId`),
-    PRIMARY KEY (`id`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- CreateTable
-CREATE TABLE `PermissionGroup` (
+CREATE TABLE `ReturnSlip` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `code` VARCHAR(191) NOT NULL,
-    `name` VARCHAR(191) NOT NULL,
-    `description` VARCHAR(191) NULL,
+    `borrowerId` INTEGER NOT NULL,
+    `branchId` INTEGER NULL,
+    `returnDate` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `totalLateFee` DOUBLE NOT NULL DEFAULT 0,
+    `note` VARCHAR(191) NULL,
+    `createdAt` DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    `updatedAt` DATETIME(3) NOT NULL,
 
-    UNIQUE INDEX `PermissionGroup_code_key`(`code`),
+    INDEX `ReturnSlip_borrowerId_fkey`(`borrowerId`),
+    INDEX `ReturnSlip_branchId_fkey`(`branchId`),
+    UNIQUE INDEX `ReturnSlip_code_branchId_key`(`code`, `branchId`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
@@ -518,9 +575,19 @@ CREATE TABLE `PermissionGroup` (
 CREATE TABLE `Setting` (
     `id` INTEGER NOT NULL AUTO_INCREMENT,
     `defaultUserRoleId` INTEGER NULL,
+    `isPenaltyFeeEnabled` BOOLEAN NOT NULL DEFAULT true,
 
     INDEX `Setting_defaultUserRoleId_fkey`(`defaultUserRoleId`),
     PRIMARY KEY (`id`)
+) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+
+-- CreateTable
+CREATE TABLE `_PermissionToRole` (
+    `A` VARCHAR(191) NOT NULL,
+    `B` INTEGER NOT NULL,
+
+    UNIQUE INDEX `_PermissionToRole_AB_unique`(`A`, `B`),
+    INDEX `_PermissionToRole_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
 -- CreateTable
@@ -559,14 +626,8 @@ CREATE TABLE `_LanguageToPublication` (
     INDEX `_LanguageToPublication_B_index`(`B`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- CreateTable
-CREATE TABLE `_PermissionToRole` (
-    `A` VARCHAR(191) NOT NULL,
-    `B` INTEGER NOT NULL,
-
-    UNIQUE INDEX `_PermissionToRole_AB_unique`(`A`, `B`),
-    INDEX `_PermissionToRole_B_index`(`B`)
-) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- AddForeignKey
+ALTER TABLE `Permission` ADD CONSTRAINT `Permission_permGroupId_fkey` FOREIGN KEY (`permGroupId`) REFERENCES `PermissionGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `User` ADD CONSTRAINT `User_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -582,6 +643,9 @@ ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_itemId_fkey` FOREIGN KEY (`ite
 
 -- AddForeignKey
 ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_borrowingSlipId_fkey` FOREIGN KEY (`borrowingSlipId`) REFERENCES `BorrowingSlip`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `Borrowing` ADD CONSTRAINT `Borrowing_returnSlipId_fkey` FOREIGN KEY (`returnSlipId`) REFERENCES `ReturnSlip`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `BorrowingSlip` ADD CONSTRAINT `BorrowingSlip_borrowerId_fkey` FOREIGN KEY (`borrowerId`) REFERENCES `Member`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -656,6 +720,15 @@ ALTER TABLE `Publication` ADD CONSTRAINT `Publication_publisherId_fkey` FOREIGN 
 ALTER TABLE `PublicationAlias` ADD CONSTRAINT `PublicationAlias_publicationId_fkey` FOREIGN KEY (`publicationId`) REFERENCES `Publication`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE `PublicationRequest` ADD CONSTRAINT `PublicationRequest_memberId_fkey` FOREIGN KEY (`memberId`) REFERENCES `Member`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PublicationRequest` ADD CONSTRAINT `PublicationRequest_approvedByUserId_fkey` FOREIGN KEY (`approvedByUserId`) REFERENCES `User`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `PublicationRequest` ADD CONSTRAINT `PublicationRequest_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE `Author` ADD CONSTRAINT `Author_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -689,16 +762,16 @@ ALTER TABLE `Member` ADD CONSTRAINT `Member_branchId_fkey` FOREIGN KEY (`branchI
 ALTER TABLE `Member` ADD CONSTRAINT `Member_classId_fkey` FOREIGN KEY (`classId`) REFERENCES `Class`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Member` ADD CONSTRAINT `Member_memGroupId_fkey` FOREIGN KEY (`memGroupId`) REFERENCES `MemberGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `Member` ADD CONSTRAINT `Member_memGroupId_fkey` FOREIGN KEY (`memGroupId`) REFERENCES `MembershipGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Member` ADD CONSTRAINT `Member_schoolYearId_fkey` FOREIGN KEY (`schoolYearId`) REFERENCES `SchoolYear`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `MemberGroup` ADD CONSTRAINT `MemberGroup_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `MembershipGroup` ADD CONSTRAINT `MembershipGroup_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `AccountPackage` ADD CONSTRAINT `AccountPackage_memGroupId_fkey` FOREIGN KEY (`memGroupId`) REFERENCES `MemberGroup`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE `MembershipPlan` ADD CONSTRAINT `MembershipPlan_membershipGroupId_fkey` FOREIGN KEY (`membershipGroupId`) REFERENCES `MembershipGroup`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Class` ADD CONSTRAINT `Class_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
@@ -716,10 +789,28 @@ ALTER TABLE `Rack` ADD CONSTRAINT `Rack_shelfId_fkey` FOREIGN KEY (`shelfId`) RE
 ALTER TABLE `BorrowingFeePolicy` ADD CONSTRAINT `BorrowingFeePolicy_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `Item`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE `Permission` ADD CONSTRAINT `Permission_permGroupId_fkey` FOREIGN KEY (`permGroupId`) REFERENCES `PermissionGroup`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE `LostReport` ADD CONSTRAINT `LostReport_memberId_fkey` FOREIGN KEY (`memberId`) REFERENCES `Member`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LostReport` ADD CONSTRAINT `LostReport_itemId_fkey` FOREIGN KEY (`itemId`) REFERENCES `Item`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `LostReport` ADD CONSTRAINT `LostReport_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ReturnSlip` ADD CONSTRAINT `ReturnSlip_borrowerId_fkey` FOREIGN KEY (`borrowerId`) REFERENCES `Member`(`id`) ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `ReturnSlip` ADD CONSTRAINT `ReturnSlip_branchId_fkey` FOREIGN KEY (`branchId`) REFERENCES `Branch`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `Setting` ADD CONSTRAINT `Setting_defaultUserRoleId_fkey` FOREIGN KEY (`defaultUserRoleId`) REFERENCES `Role`(`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_PermissionToRole` ADD CONSTRAINT `_PermissionToRole_A_fkey` FOREIGN KEY (`A`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE `_PermissionToRole` ADD CONSTRAINT `_PermissionToRole_B_fkey` FOREIGN KEY (`B`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE `_AuthorToPublication` ADD CONSTRAINT `_AuthorToPublication_A_fkey` FOREIGN KEY (`A`) REFERENCES `Author`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
@@ -744,9 +835,3 @@ ALTER TABLE `_LanguageToPublication` ADD CONSTRAINT `_LanguageToPublication_A_fk
 
 -- AddForeignKey
 ALTER TABLE `_LanguageToPublication` ADD CONSTRAINT `_LanguageToPublication_B_fkey` FOREIGN KEY (`B`) REFERENCES `Publication`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_PermissionToRole` ADD CONSTRAINT `_PermissionToRole_A_fkey` FOREIGN KEY (`A`) REFERENCES `Permission`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
-ALTER TABLE `_PermissionToRole` ADD CONSTRAINT `_PermissionToRole_B_fkey` FOREIGN KEY (`B`) REFERENCES `Role`(`id`) ON DELETE CASCADE ON UPDATE CASCADE;

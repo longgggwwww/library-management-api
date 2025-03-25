@@ -57,7 +57,7 @@ Table Branch {
   itemConditions ItemCondition [not null]
   languages Language [not null]
   members Member [not null]
-  memGroups MemberGroup [not null]
+  membershipGroups MembershipGroup [not null]
   publications Publication [not null]
   publishers Publisher [not null]
   schoolYears SchoolYear [not null]
@@ -450,7 +450,7 @@ Table Member {
   borrowedItems Item [not null]
   branch Branch
   class Class
-  memberGroup MemberGroup
+  membershipGroup MembershipGroup
   schoolYear SchoolYear
   borrowingSlips BorrowingSlip [not null]
   publicationRequests PublicationRequest [not null]
@@ -458,7 +458,7 @@ Table Member {
   returnSlips ReturnSlip [not null]
 }
 
-Table MemberGroup {
+Table MembershipGroup {
   id Int [pk, increment]
   code String [not null]
   name String [not null]
@@ -469,7 +469,7 @@ Table MemberGroup {
   description String
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  accountPackages AccountPackage [not null]
+  membershipPlans MembershipPlan [not null]
   members Member [not null]
   branch Branch
 
@@ -478,18 +478,18 @@ Table MemberGroup {
   }
 }
 
-Table AccountPackage {
+Table MembershipPlan {
   id Int [pk, increment]
   code String [not null]
   name String [not null]
   fee Float [not null]
   durationInMonths Int [not null]
   description String
-  memGroupId Int [not null]
-  memGroup MemberGroup [not null]
+  membershipGroupId Int [not null]
+  membershipGroup MembershipGroup [not null]
 
   indexes {
-    (code, memGroupId) [unique]
+    (code, membershipGroupId) [unique]
   }
 }
 
@@ -756,13 +756,13 @@ Ref: Member.branchId > Branch.id
 
 Ref: Member.classId > Class.id
 
-Ref: Member.memGroupId > MemberGroup.id
+Ref: Member.memGroupId > MembershipGroup.id
 
 Ref: Member.schoolYearId > SchoolYear.id
 
-Ref: MemberGroup.branchId > Branch.id
+Ref: MembershipGroup.branchId > Branch.id
 
-Ref: AccountPackage.memGroupId > MemberGroup.id
+Ref: MembershipPlan.membershipGroupId > MembershipGroup.id
 
 Ref: Class.branchId > Branch.id
 

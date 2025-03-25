@@ -72,7 +72,7 @@ model Branch {
   itemConditions      ItemCondition[] // Điều kiện sách
   languages           Language[] // Ngôn ngữ sách
   members             Member[] // Thành viên của chi nhánh
-  memGroups           MemberGroup[] // Nhóm thành viên
+  membershipGroups    MembershipGroup[] // Nhóm thành viên
   publications        Publication[] // Ấn phẩm
   publishers          Publisher[] // Nhà xuất bản
   schoolYears         SchoolYear[] // Niên khóa
@@ -513,7 +513,7 @@ model Member {
   borrowedItems       Item[] // Danh sách các sách đã mượn
   branch              Branch?              @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
   class               Class?               @relation(fields: [classId], references: [id]) // Liên kết với lớp học
-  memberGroup         MemberGroup?         @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
+  membershipGroup     MembershipGroup?     @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
   schoolYear          SchoolYear?          @relation(fields: [schoolYearId], references: [id]) // Liên kết với niên khóa
   borrowingSlips      BorrowingSlip[] // Danh sách phiếu mượn sách
   publicationRequests PublicationRequest[] // Danh sách yêu cầu bổ sung ấn phẩm
@@ -527,7 +527,7 @@ model Member {
 }
 
 // Model nhóm thành viên (nhóm bạn đọc)
-model MemberGroup {
+model MembershipGroup {
   id                Int              @id @default(autoincrement())
   code              String // Mã nhóm thành viên
   name              String // Tên nhóm thành viên
@@ -538,27 +538,27 @@ model MemberGroup {
   description       String? // Mô tả nhóm thành viên
   createdAt         DateTime         @default(now()) // Thời gian tạo
   updatedAt         DateTime         @updatedAt // Thời gian cập nhật cuối
-  accountPackages   AccountPackage[] // Danh sách gói tài khoản
+  membershipPlans   MembershipPlan[] // Danh sách gói tài khoản
   members           Member[] // Danh sách thành viên trong nhóm
   branch            Branch?          @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
 
   @@unique([code, branchId])
-  @@index([branchId], map: "MemberGroup_branchId_fkey")
+  @@index([branchId], map: "MembershipGroup_branchId_fkey")
 }
 
 // Model chính sách gói tài khoản (gói mở tài khoản)
-model AccountPackage {
-  id               Int         @id @default(autoincrement())
-  code             String // Mã gói tài khoản
-  name             String // Tên gói tài khoản
-  fee              Float // Phí gói tài khoản
-  durationInMonths Int // Thời gian sử dụng gói tài khoản (tính bằng tháng)
-  description      String? // Mô tả gói tài khoản
-  memGroupId       Int // ID nhóm thành viên
-  memGroup         MemberGroup @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
+model MembershipPlan {
+  id                Int             @id @default(autoincrement())
+  code              String // Mã gói tài khoản
+  name              String // Tên gói tài khoản
+  fee               Float // Phí gói tài khoản
+  durationInMonths  Int // Thời gian sử dụng gói tài khoản (tính bằng tháng)
+  description       String? // Mô tả gói tài khoản
+  membershipGroupId Int // ID nhóm thành viên
+  membershipGroup   MembershipGroup @relation(fields: [membershipGroupId], references: [id]) // Liên kết với nhóm thành viên
 
-  @@unique([code, memGroupId])
-  @@index([memGroupId], map: "AccountPackage_memGroupId_fkey")
+  @@unique([code, membershipGroupId])
+  @@index([membershipGroupId], map: "MembershipPlan_membershipGroupId_fkey")
 }
 
 // Model lớp học
