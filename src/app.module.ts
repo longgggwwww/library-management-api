@@ -32,6 +32,10 @@ import { RoleModule } from './role/role.module';
 import { SchoolYearModule } from './school-year/school-year.module';
 import { SettingModule } from './setting/setting.module';
 import { UserModule } from './user/user.module';
+import { BorrowingFeePolicyModule } from './borrowing-fee-policy/borrowing-fee-policy.module';
+import { BorrowingPolicyModule } from './borrowing-policy/borrowing-policy.module';
+import { ShelfModule } from './shelf/shelf.module';
+import { RackModule } from './rack/rack.module';
 
 @Module({
   imports: [
@@ -72,6 +76,10 @@ import { UserModule } from './user/user.module';
     BorrowingModule,
     PermGroupModule,
     CustomPrismaModule,
+    BorrowingFeePolicyModule,
+    BorrowingPolicyModule,
+    ShelfModule,
+    RackModule,
   ],
   controllers: [AppController],
   providers: [

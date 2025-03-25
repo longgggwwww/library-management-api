@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   UseGuards,
@@ -24,8 +25,10 @@ import { UpdateBorrowingDto } from './dto/update-borrowing.dto';
 export class BorrowingController {
   constructor(private readonly borrowing: BorrowingService) {}
 
+  // ------------------ Borrowing Slip (Phiếu mượn sách) ------------------
+
   @Permit('CREATE_BORROW_SLIP')
-  @Post('slip')
+  @Post('borrowing-slip')
   // Tạo phiếu mượn sách
   createBorrwingSlip(
     // Lấy thông tin user từ decorator UserCtx
@@ -35,32 +38,42 @@ export class BorrowingController {
     return this.borrowing.createBorrowingSlip(user.branchId, dto);
   }
 
+  // ------------------ Loan Transaction, Borrowing (Việc mượn sách) ------------------
+
   // Tạo mới một việc mượn sách
   @Post()
   create(@Body() dto: LoanTransactionDto) {
     return this.borrowing.create(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.borrowing.findAll();
+  @Permit('VIEW_BORROW_SLIP')
+  @Get('borrowing-slip')
+  // Lấy danh sách phiếu mượn sách
+  findMany(@UserCtx() user: User) {
+    return this.borrowing.findMany(user.branchId);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.borrowing.findOne(+id);
+  @Permit('VIEW_BORROW_SLIP')
+  @Get('borrowing-slip/:id')
+  find(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.borrowing.find(user.branchId, id);
   }
 
-  @Patch(':id')
+  @Permit('UPDATE_BORROW_SLIP')
+  @Patch('borrowing-slip/:id')
+  // Cập nhật thông tin một phiếu mượn sách
   update(
-    @Param('id') id: string,
-    @Body() updateBorrowingDto: UpdateBorrowingDto,
+    @UserCtx() user: User,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateBorrowingDto,
   ) {
-    return this.borrowing.update(+id, updateBorrowingDto);
+    return this.borrowing.update(user.branchId, id, dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.borrowing.remove(+id);
+  @Permit('DELETE_BORROW_SLIP')
+  @Delete('borrowing-slip/:id')
+  // Xóa một phiếu mượn sách
+  delete(@UserCtx() user: User, @Param('id', ParseIntPipe) id: number) {
+    return this.borrowing.delete(user.branchId, id);
   }
 }

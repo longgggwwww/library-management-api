@@ -530,7 +530,7 @@ model Shelf {
   @@index([branchId], map: "Shelf_branchId_fkey")
 }
 
-// Model kho sách
+// Model giá sách
 model Rack {
   id          Int     @id @default(autoincrement())
   code        String // Mã giá sách
@@ -631,9 +631,10 @@ model PermissionGroup {
 
 // Model cài đặt hệ thống
 model Setting {
-  id                Int   @id @default(autoincrement())
-  defaultUserRoleId Int? // ID vai trò mặc định của người dùng
-  defaultUserRole   Role? @relation("RoleToSetting", fields: [defaultUserRoleId], references: [id]) // Liên kết với vai trò mặc định
+  id                  Int     @id @default(autoincrement())
+  defaultUserRoleId   Int? // ID vai trò mặc định của người dùng
+  defaultUserRole     Role?   @relation("RoleToSetting", fields: [defaultUserRoleId], references: [id]) // Liên kết với vai trò mặc định
+  isPenaltyFeeEnabled Boolean @default(true) // Tùy chọn thu/không thu phí phạt
 
   @@index([defaultUserRoleId], map: "Setting_defaultUserRoleId_fkey")
 }

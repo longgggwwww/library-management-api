@@ -1,5 +1,6 @@
 import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
   IsArray,
   IsDate,
   IsInt,
@@ -27,12 +28,17 @@ export class CreateBorrowingSlipDto {
   note?: string; // Ghi chú (tùy chọn)
 
   @IsArray()
+  @ArrayMinSize(1) // Ensure at least one item is present
   @ValidateNested({ each: true })
   @Type(() => LoanTransactionDto)
   borrowings: LoanTransactionDto[]; // Danh sách sách mượn
 }
 
 export class LoanTransactionDto {
+  @IsString()
+  @IsOptional()
+  code?: string; // Mã của transaction
+
   @IsInt()
   itemId: number; // ID sách
 
