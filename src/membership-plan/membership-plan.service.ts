@@ -3,34 +3,34 @@ import { Prisma } from '@prisma/client';
 import { CustomPrismaService } from 'nestjs-prisma';
 import { CUSTOM_PRISMA_CLIENT } from 'src/common/constants/inject-tokens';
 import { ExtendedPrismaClient } from 'src/custom-prisma/custom-prisma.extension';
-import { CreateAccountPackageDto } from './dto/create-account-package.dto';
-import { UpdateAccountPackageDto } from './dto/update-account-package.dto';
+import { CreateMembershipPlanDto } from './dto/create-membership-plan.dto';
+import { UpdateMembershipPlanDto } from './dto/update-membership-plan.dto';
 
 @Injectable()
-export class AccountPackageService {
+export class MembershipPlanService {
   constructor(
     @Inject(CUSTOM_PRISMA_CLIENT)
     private readonly prisma: CustomPrismaService<ExtendedPrismaClient>,
   ) {}
 
-  private includeOpts: Prisma.AccountPackageInclude = {
-    memGroup: true,
+  private includeOpts: Prisma.MembershipPlanInclude = {
+    membershipGroup: true,
   };
 
   // Tạo mới một phí dịch vụ
-  async create(branchId: number, dto: CreateAccountPackageDto) {
+  async create(branchId: number, dto: CreateMembershipPlanDto) {
     // Kiểm tra xem nhóm thành viên có tồn tại hay không
-    const memGroup = await this.prisma.client.memberGroup.findUnique({
+    const memGroup = await this.prisma.client.membershipGroup.findUnique({
       where: {
-        id: dto.memGroupId,
-        branchId, // Đảm bảo nhóm thành viên thuộc branchId
+        id: dto.membershipGroupId,
+        branchId,
       },
     });
     if (!memGroup) {
       throw new BadRequestException('Member group not found');
     }
 
-    return this.prisma.client.accountPackage.create({
+    return this.prisma.client.membershipPlan.create({
       data: dto,
       include: this.includeOpts,
     });
@@ -40,10 +40,10 @@ export class AccountPackageService {
 
   // Tìm kiếm một phí dịch vụ
   async find(branchId: number, id: number) {
-    return this.prisma.client.accountPackage.findUnique({
+    return this.prisma.client.membershipPlan.findUnique({
       where: {
         id,
-        memGroup: {
+        membershipGroup: {
           branchId,
         },
       },
@@ -52,9 +52,9 @@ export class AccountPackageService {
   }
 
   // Cập nhật một phí dịch vụ
-  async update(branchId: number, id: number, dto: UpdateAccountPackageDto) {
+  async update(branchId: number, id: number, dto: UpdateMembershipPlanDto) {
     // Kiểm tra xem phí dịch vụ có tồn tại hay không
-    const accountPkg = await this.prisma.client.accountPackage.findFirst({
+    const accountPkg = await this.prisma.client.membershipPlan.findFirst({
       where: {
         id,
       },
@@ -64,10 +64,10 @@ export class AccountPackageService {
     }
 
     // Kiêm tra nhóm thành viên có tồn tại hay không
-    if (dto.memGroupId) {
-      const memGroup = await this.prisma.client.memberGroup.findFirst({
+    if (dto.membershipGroupId) {
+      const memGroup = await this.prisma.client.membershipGroup.findFirst({
         where: {
-          id: dto.memGroupId,
+          id: dto.membershipGroupId,
           branchId,
         },
       });
@@ -76,7 +76,7 @@ export class AccountPackageService {
       }
     }
 
-    return this.prisma.client.accountPackage.update({
+    return this.prisma.client.membershipPlan.update({
       where: {
         id,
       },
@@ -87,10 +87,10 @@ export class AccountPackageService {
 
   // Xóa một phí dịch vụ
   async delete(branchId: number, id: number) {
-    return this.prisma.client.accountPackage.delete({
+    return this.prisma.client.membershipPlan.delete({
       where: {
         id,
-        memGroup: {
+        membershipGroup: {
           branchId,
         },
       },
@@ -99,12 +99,12 @@ export class AccountPackageService {
 
   // Xóa nhiều phí dịch vn
   async deleteMany(branchId: number, ids: number[]) {
-    return this.prisma.client.accountPackage.deleteMany({
+    return this.prisma.client.membershipPlan.deleteMany({
       where: {
         id: {
           in: ids,
         },
-        memGroup: {
+        membershipGroup: {
           branchId,
         },
       },

@@ -20,7 +20,7 @@ export class MemberService {
     borrowedItems: true,
     class: true,
     schoolYear: true,
-    memberGroup: true,
+    membershipGroup: true,
   };
 
   async create(branchId: number, dto: CreateMemberDto) {

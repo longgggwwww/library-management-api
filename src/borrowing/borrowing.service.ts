@@ -50,60 +50,17 @@ export class BorrowingService {
         branchId, // Đảm bảo người mượn thuộc branchId
       },
       include: {
-        memberGroup: true,
+        membershipGroup: true,
       },
     });
     if (!borrower) {
       throw new BadRequestException('Borrower not found');
     }
-
-    // Kiểm tra ngày trả sách không vượt quá số ngày mượn tối đa
-    if (
-      borrower.memberGroup.maxBorrowDays &&
-      dto.dueDate.getTime() - dto.borrowingDate.getTime() >
-        borrower.memberGroup.maxBorrowDays * 24 * 60 * 60 * 1000
-    ) {
-      throw new BadRequestException('Due date is over max borrow days');
-    }
-    // Kiểm tra ngày mượn sách không vượt quá số sách tối đa được mượn
-    if (
-      borrower.memberGroup.maxBorrowedItems &&
-      dto.borrowings.length > borrower.memberGroup.maxBorrowedItems
-    ) {
-      throw new BadRequestException('Number of items is over max borrow items');
-    }
-
-    // Yêu cầu ngày trả phải sau ngày mượn
-    if (dto.dueDate <= dto.borrowingDate) {
-      throw new BadRequestException('Due date must be after borrowing date');
-    }
-
-    // Kiểm tra sách có tồn tại và chưa được mượn
-    const items = await this.prisma.client.item.count({
-      where: {
-        id: {
-          in: dto.borrowings.map((r) => r.itemId),
-        },
-        status: 'AVAILABLE',
-        branchId,
-      },
-    });
-    if (items !== dto.borrowings.length) {
-      throw new BadRequestException('Some items are not available');
-    }
-
-    // Tính tổng phí mượn sách
-    const totalFee = dto.borrowings.reduce(
-      (acc, r) => acc + (r.borrowingFee || 0),
-      0,
-    );
-
-    // Tạo phiếu mượn sách
     const record = await this.prisma.client.borrowingSlip.create({
       data: {
         ...dto,
         branchId,
-        totalFee,
+        totalFee: 0,
         borrowings: {
           createMany: {
             data: dto.borrowings.map((r) => ({

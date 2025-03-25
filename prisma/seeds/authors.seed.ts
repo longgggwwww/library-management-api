@@ -3,7 +3,6 @@ import * as path from 'path';
 import { readCSV } from '../../utils/read-csv-file';
 import prisma from '../client';
 
-// Định nghĩa kiểu dữ liệu cho tác giả
 type Author = {
   branch_code: string;
   code: string;

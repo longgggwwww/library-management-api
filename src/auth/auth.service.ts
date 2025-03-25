@@ -106,7 +106,7 @@ export class AuthService {
       },
     },
     class: true,
-    memberGroup: true,
+    membershipGroup: true,
     schoolYear: true,
   };
 

@@ -1,6 +1,6 @@
 import { IsInt, IsOptional, IsString } from 'class-validator';
 
-export class CreateAccountPackageDto {
+export class CreateMembershipPlanDto {
   @IsString()
   code: string; // Mã gói tài khoản
 
@@ -18,5 +18,5 @@ export class CreateAccountPackageDto {
   description: string; // Mô tả gói tài khoản (không bắt buộc)
 
   @IsInt()
-  memGroupId: number; // ID nhóm thành viên
+  membershipGroupId: number; // ID nhóm thành viên
 }

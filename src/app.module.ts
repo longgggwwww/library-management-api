@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { CustomPrismaModule, PrismaModule } from 'nestjs-prisma';
-import { AccountPackageModule } from './account-package/account-package.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -23,8 +22,9 @@ import { HashtagModule } from './hashtag/hashtag.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { ItemModule } from './item/item.module';
 import { LanguageModule } from './language/language.module';
-import { MemberGroupModule } from './member-group/member-group.module';
 import { MemberModule } from './member/member.module';
+import { MembershipGroupModule } from './membership-group/membership-group.module';
+import { MembershipPlanModule } from './membership-plan/membership-plan.module';
 import { PermGroupModule } from './perm-group/perm-group.module';
 import { AuthorizationGuard } from './permission/permission.guard';
 import { PermModule } from './permission/permission.module';
@@ -73,8 +73,8 @@ import { UserModule } from './user/user.module';
     ClassModule,
     SchoolYearModule,
     MemberModule,
-    MemberGroupModule,
-    AccountPackageModule,
+    MembershipGroupModule,
+    MembershipPlanModule,
     BorrowingModule,
     PermGroupModule,
     CustomPrismaModule,
