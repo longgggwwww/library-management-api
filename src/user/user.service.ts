@@ -5,7 +5,7 @@ import { PrismaService } from 'nestjs-prisma';
 import { hashPwd } from 'utils/hash-password';
 import { AssignBranchDto } from './dto/assign-branch.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
-import { CreateManyUserDto, CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUsersListDto } from './dto/create-user.dto';
 import { FindUserDto } from './dto/find-user.dto';
 import {
   ChangePwdDto,
@@ -56,7 +56,7 @@ export class UserService {
     return this.prisma.user.findUniqueOrThrow({ where: input });
   }
 
-  async createBatch(dto: CreateManyUserDto) {
+  async createBatch(dto: CreateUsersListDto) {
     const { users } = dto;
     const defaultRoleId = await this.getDefaultRoleId();
     const hashedPwds = await Promise.all(

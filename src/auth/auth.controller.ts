@@ -17,11 +17,10 @@ import { User } from './types/user.type';
 export class AuthController {
   constructor(private readonly auth: AuthService) {}
 
-  @HttpCode(HttpStatus.OK) // Trả về status code 200
-  @PublicEndpoint() // Endpoint này không cần quyền truy cập
-  @UseGuards(LocalAuthGuard) // Sử dụng LocalAuthGuard để kiểm tra thông tin đăng nhập
+  @HttpCode(HttpStatus.OK)
+  @PublicEndpoint() // Không cần xác thực để truy cập
+  @UseGuards(LocalAuthGuard) // Kiểm tra thông tin đăng nhập
   @Post('login')
-  // Đăng nhập
   login(
     // Lấy thông tin người dùng từ decorator UserCtx
     @UserCtx() user: User,
@@ -32,7 +31,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @PublicEndpoint()
   @Post('token/refresh')
-  // Lấy token mới
   refresh(@Body() dto: RefreshTokenDto) {
     return this.auth.refresh(dto);
   }
@@ -40,7 +38,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @PublicEndpoint()
   @Post('login-as-member')
-  // Đăng nhập với tư cách thành viên
   loginAsMember(@Body() dto: LoginAsMemberDto) {
     return this.auth.loginAsMember(dto);
   }
@@ -48,8 +45,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @PublicEndpoint()
   @Post('token/refresh-member')
-  // Lấy token mới với tư cách thành viên
-  refreshTkAsMember(@Body() dto: RefreshTokenDto) {
+  refreshTokenAsMember(@Body() dto: RefreshTokenDto) {
     return this.auth.refreshTkAsMember(dto);
   }
 }

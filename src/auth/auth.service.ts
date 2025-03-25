@@ -3,14 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { CustomPrismaService } from 'nestjs-prisma';
-import {
-  memberAccessTokenSecret,
-  memberAccessTokenTTL,
-  memberRefreshTokenSecret,
-  memberRefreshTokenTTL,
-  refreshTokenSecret,
-  refreshTokenTTL,
-} from 'src/common/constants/env-keys';
+import { tokens } from 'src/common/constants/env-keys';
 import { CUSTOM_PRISMA_CLIENT } from 'src/common/constants/inject-tokens';
 import { ExtendedPrismaClient } from 'src/custom-prisma/custom-prisma.extension';
 import { UserService } from 'src/user/user.service';
@@ -39,11 +32,8 @@ export class AuthService {
     return null; // Trả về null nếu không hợp lệ
   }
 
-  // Hàm đăng nhập và tạo token
   async login(payload: User) {
     const user = await this.user.find(payload.id);
-
-    console.log('user ', user);
 
     // Tạo access token chứa thông tin người dùng và quyền
     const accessToken = this.jwt.sign(<User>{
@@ -56,8 +46,8 @@ export class AuthService {
     const refreshToken = this.jwt.sign(
       { id: user.id },
       {
-        secret: refreshTokenSecret, // Sử dụng secret cho refresh token
-        expiresIn: refreshTokenTTL, // Thời gian hết hạn
+        secret: tokens.user.refreshToken.secret, // Sử dụng secret cho refresh token
+        expiresIn: tokens.user.refreshToken.ttl, // Thời gian hết hạn
       },
     );
 
@@ -69,7 +59,7 @@ export class AuthService {
     try {
       // Giải mã token để lấy thông tin người dùng
       const decoded = this.jwt.verify(dto.refreshToken, {
-        secret: refreshTokenSecret, // Sử dụng secret để giải mã
+        secret: tokens.user.refreshToken.secret, // Sử dụng secret để giải mã
       });
 
       // Tìm người dùng theo ID từ token
@@ -153,11 +143,17 @@ export class AuthService {
           branchId: user.branchId,
           isLocked: user.isLocked,
         },
-        { secret: memberAccessTokenSecret, expiresIn: memberAccessTokenTTL },
+        {
+          secret: tokens.member.accessToken.secret,
+          expiresIn: tokens.member.accessToken.ttl,
+        },
       ),
       refreshToken: this.jwt.sign(
         { id: user.id },
-        { secret: memberRefreshTokenSecret, expiresIn: memberRefreshTokenTTL },
+        {
+          secret: tokens.member.refreshToken.secret,
+          expiresIn: tokens.member.refreshToken.ttl,
+        },
       ),
       user,
     };
@@ -167,7 +163,7 @@ export class AuthService {
     try {
       // Giải mã token để lấy thông tin người dùng
       const decoded = this.jwt.verify(dto.refreshToken, {
-        secret: memberRefreshTokenSecret, // Sử dụng secret để giải mã
+        secret: tokens.member.refreshToken.secret, // Sử dụng secret để giải mã
       });
 
       // Tìm người dùng theo ID từ token
@@ -189,13 +185,16 @@ export class AuthService {
             branchId: user.branchId,
             isLocked: user.isLocked,
           },
-          { secret: memberAccessTokenSecret, expiresIn: memberAccessTokenTTL },
+          {
+            secret: tokens.member.accessToken.secret,
+            expiresIn: tokens.member.accessToken.ttl,
+          },
         ),
         refreshToken: this.jwt.sign(
           { id: user.id },
           {
-            secret: memberRefreshTokenSecret,
-            expiresIn: memberRefreshTokenTTL,
+            secret: tokens.member.refreshToken.secret,
+            expiresIn: tokens.member.refreshToken.ttl,
           },
         ),
         user,

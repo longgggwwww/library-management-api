@@ -11,63 +11,103 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Model chi nhánh (thư viện trường học)
-model Branch {
-  id                Int                @id @default(autoincrement())
-  code              String             @unique // Mã chi nhánh, duy nhất
-  name              String // Tên chi nhánh
-  logoUrl           String? // URL logo của chi nhánh
-  address           String? // Địa chỉ chi nhánh
-  phone             String? // Số điện thoại liên hệ
-  email             String? // Email liên hệ
-  website           String? // Website của chi nhánh
-  isActive          Boolean            @default(true) // Trạng thái hoạt động của chi nhánh
-  createdAt         DateTime           @default(now()) // Thời gian tạo
-  updatedAt         DateTime           @updatedAt // Thời gian cập nhật cuối
-  borrowingPolicy   BorrowingPolicy? // Chính sách mượn sách của chi nhánh
-  authors           Author[] // Danh sách tác giả liên kết với chi nhánh
-  borrowingSlips    BorrowingSlip[] // Danh sách phiếu mượn sách
-  categories        Category[] // Danh mục sách
-  classes           Class[] // Danh sách lớp học
-  genres            Genre[] // Thể loại sách
-  hashtags          Hashtag[] // Hashtag liên quan
-  inventories       Inventory[] // Kho sách
-  inventoryReceipts InventoryReceipt[] // Biên nhận nhập kho
-  items             Item[] // Các sách
-  itemConditions    ItemCondition[] // Điều kiện sách
-  languages         Language[] // Ngôn ngữ sách
-  members           Member[] // Thành viên của chi nhánh
-  memGroups         MemberGroup[] // Nhóm thành viên
-  publications      Publication[] // Ấn phẩm
-  publishers        Publisher[] // Nhà xuất bản
-  schoolYears       SchoolYear[] // Niên khóa
-  shelves           Shelf[] // Kệ sách
-  users             User[] // Người dùng
+// Model vai trò
+model Role {
+  id          Int          @id @default(autoincrement())
+  name        String // Tên vai trò
+  code        String       @unique // Mã vai trò, duy nhất
+  color       String? // Màu sắc vai trò
+  description String? // Mô tả vai trò
+  createdAt   DateTime     @default(now()) // Thời gian tạo
+  updatedAt   DateTime     @updatedAt // Thời gian cập nhật cuối
+  settings    Setting[]    @relation("RoleToSetting") // Danh sách cài đặt liên quan
+  users       User[] // Danh sách người dùng có vai trò này
+  permissions Permission[] @relation("PermissionToRole") // Danh sách quyền liên quan
 }
 
+// Model quyền hạn
+model Permission {
+  id          String           @id @unique // ID quyền, duy nhất
+  name        String // Tên quyền
+  description String? // Mô tả quyền
+  permGroupId Int? // ID nhóm quyền 
+  permGroup   PermissionGroup? @relation("PermissionToGroup", fields: [permGroupId], references: [id]) // Liên kết với nhóm quyền
+  roles       Role[]           @relation("PermissionToRole") // Danh sách vai trò có quyền này
+
+  @@index([permGroupId], map: "Permission_groupId_fkey")
+}
+
+// Model nhóm quyền
+model PermissionGroup {
+  id          Int          @id @default(autoincrement())
+  code        String       @unique // Mã nhóm quyền, duy nhất
+  name        String // Tên nhóm quyền
+  description String? // Mô tả nhóm quyền
+  permissions Permission[] @relation("PermissionToGroup") // Danh sách quyền trong nhóm
+}
+
+// Model chi nhánh (thư viện trường học)
+model Branch {
+  id                  Int                  @id @default(autoincrement())
+  code                String               @unique // Mã chi nhánh, duy nhất
+  name                String // Tên chi nhánh
+  logoUrl             String? // URL logo của chi nhánh
+  address             String? // Địa chỉ chi nhánh
+  phone               String? // Số điện thoại liên hệ
+  email               String? // Email liên hệ
+  website             String? // Website của chi nhánh
+  isActive            Boolean              @default(true) // Trạng thái hoạt động của chi nhánh
+  createdAt           DateTime             @default(now()) // Thời gian tạo
+  updatedAt           DateTime             @updatedAt // Thời gian cập nhật cuối
+  borrowingPolicy     BorrowingPolicy? // Chính sách mượn sách của chi nhánh
+  authors             Author[] // Danh sách tác giả liên kết với chi nhánh
+  borrowingSlips      BorrowingSlip[] // Danh sách phiếu mượn sách
+  categories          Category[] // Danh mục sách
+  classes             Class[] // Danh sách lớp học
+  genres              Genre[] // Thể loại sách
+  hashtags            Hashtag[] // Hashtag liên quan
+  inventories         Inventory[] // Kho sách
+  inventoryReceipts   InventoryReceipt[] // Biên nhận nhập kho
+  items               Item[] // Các sách
+  itemConditions      ItemCondition[] // Điều kiện sách
+  languages           Language[] // Ngôn ngữ sách
+  members             Member[] // Thành viên của chi nhánh
+  memGroups           MemberGroup[] // Nhóm thành viên
+  publications        Publication[] // Ấn phẩm
+  publishers          Publisher[] // Nhà xuất bản
+  schoolYears         SchoolYear[] // Niên khóa
+  shelves             Shelf[] // Kệ sách
+  users               User[] // Người dùng
+  publicationRequests PublicationRequest[] // Yêu cầu bổ sung ấn phẩm
+  lostReports         LostReport[] // Báo cáo mất sách
+  returnSlips         ReturnSlip[] // Danh sách phiếu trả sách
+}
+
+// Model người dùng
 model User {
-  id                Int                @id @default(autoincrement())
-  branchId          Int? // ID chi nhánh mà người dùng thuộc về
-  roleId            Int? // ID vai trò của người dùng
-  username          String             @unique // Tên đăng nhập, duy nhất
-  password          String // Mật khẩu
-  address           String? // Địa chỉ của người dùng
-  birthDate         DateTime? // Ngày sinh
-  email             String // Email của người dùng
-  fullName          String // Họ và tên đầy đủ
-  note              String? // Ghi chú thêm
-  phone             String // Số điện thoại
-  avatarUrl         String? // URL ảnh đại diện
-  isActive          Boolean            @default(true) // Trạng thái hoạt động
-  isAdmin           Boolean?           @default(false) // Có phải là quản trị viên không
-  createdAt         DateTime           @default(now()) // Thời gian tạo
-  updatedAt         DateTime           @updatedAt // Thời gian cập nhật cuối
-  branch            Branch?            @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
-  role              Role?              @relation(fields: [roleId], references: [id]) // Liên kết với vai trò
-  inventoryReceipts InventoryReceipt[] // Biên nhận nhập kho do người dùng tạo
-  createdItems      Item[] // Các sách do người dùng tạo
-  createdPubs       Publication[] // Các ấn phẩm do người dùng tạo
-  createdPublishers Publisher[] // Các nhà xuất bản do người dùng tạo
+  id                  Int                  @id @default(autoincrement())
+  branchId            Int? // ID chi nhánh mà người dùng thuộc về
+  roleId              Int? // ID vai trò của người dùng
+  username            String               @unique // Tên đăng nhập, duy nhất
+  password            String // Mật khẩu
+  address             String? // Địa chỉ của người dùng
+  birthDate           DateTime? // Ngày sinh
+  email               String // Email của người dùng
+  fullName            String // Họ và tên đầy đủ
+  note                String? // Ghi chú thêm
+  phone               String // Số điện thoại
+  avatarUrl           String? // URL ảnh đại diện
+  isActive            Boolean              @default(true) // Trạng thái hoạt động
+  isAdmin             Boolean?             @default(false) // Có phải là quản trị viên không
+  createdAt           DateTime             @default(now()) // Thời gian tạo
+  updatedAt           DateTime             @updatedAt // Thời gian cập nhật cuối
+  branch              Branch?              @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  role                Role?                @relation(fields: [roleId], references: [id]) // Liên kết với vai trò
+  inventoryReceipts   InventoryReceipt[] // Biên nhận nhập kho do người dùng tạo
+  createdItems        Item[] // Các sách do người dùng tạo
+  createdPubs         Publication[] // Các ấn phẩm do người dùng tạo
+  createdPublishers   Publisher[] // Các nhà xuất bản do người dùng tạo
+  publicationRequests PublicationRequest[] // Yêu cầu bổ sung ấn phẩm do người dùng duyệt
 
   @@index([branchId], map: "User_branchId_fkey")
   @@index([roleId], map: "User_roleId_fkey")
@@ -84,15 +124,19 @@ model Borrowing {
   itemId          Int                  @unique // ID sách mượn, duy nhất
   status          BorrowingStatus      @default(BORROWED) // Trạng thái mượn sách
   borrowingFee    Float // Phí mượn sách
+  lateFee         Float? // Phí phạt khi trả sách trễ
   borrower        Member               @relation(fields: [borrowerId], references: [id]) // Liên kết với người mượn sách
   item            Item                 @relation(fields: [itemId], references: [id]) // Liên kết với sách mượn
   borrowingSlipId Int? // ID phiếu mượn sách
   borrowingSlip   BorrowingSlip?       @relation(fields: [borrowingSlipId], references: [id], onDelete: Cascade) // Liên kết với phiếu mượn sách
   extensions      BorrowingExtension[] // Danh sách gia hạn mượn sách
+  returnSlipId    Int? // ID phiếu trả sách
+  returnSlip      ReturnSlip?          @relation(fields: [returnSlipId], references: [id], onDelete: Cascade) // Liên kết với phiếu trả sách
 
   @@unique([code, borrowingSlipId])
   @@index([borrowerId], map: "Borrowing_borrowerId_fkey")
   @@index([borrowingSlipId], map: "Borrowing_borrowingSlipId_fkey")
+  @@index([returnSlipId], map: "Borrowing_returnSlipId_fkey")
 }
 
 // Model phiếu mượn sách
@@ -192,6 +236,7 @@ model Item {
   publication                                   Publication?                 @relation(fields: [publicationId], references: [id]) // Liên kết với ấn phẩm
   rack                                          Rack?                        @relation(fields: [rackId], references: [id]) // Liên kết với giá sách
   shelf                                         Shelf?                       @relation(fields: [shelfId], references: [id]) // Liên kết với kệ sách
+  lostReports                                   LostReport[] // Danh sách báo cáo mất liên quan đến sách
 
   @@unique([barcode, branchId])
   @@index([borrowerId], map: "Item_borrowerId_fkey")
@@ -313,6 +358,34 @@ model PublicationAlias {
   @@index([publicationId], map: "PublicationAlias_publicationId_fkey")
 }
 
+// Model yêu cầu bổ sung ấn phẩm
+model PublicationRequest {
+  id               Int                      @id @default(autoincrement())
+  memberId         Int // ID thành viên yêu cầu
+  title            String // Tiêu đề ấn phẩm được yêu cầu
+  author           String? // Tác giả ấn phẩm được yêu cầu (nếu có)
+  status           PublicationRequestStatus @default(PENDING) // Trạng thái yêu cầu
+  note             String? // Ghi chú thêm
+  createdAt        DateTime                 @default(now()) // Thời gian tạo yêu cầu
+  updatedAt        DateTime                 @updatedAt // Thời gian cập nhật cuối
+  approvedByUserId Int? // ID người dùng duyệt yêu cầu
+  branchId         Int? // ID chi nhánh
+  member           Member                   @relation(fields: [memberId], references: [id]) // Liên kết với thành viên
+  approvedByUser   User?                    @relation(fields: [approvedByUserId], references: [id]) // Liên kết với người dùng duyệt yêu cầu
+  branch           Branch?                  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@index([memberId], map: "PublicationRequest_memberId_fkey")
+  @@index([approvedByUserId], map: "PublicationRequest_approvedByUserId_fkey")
+  @@index([branchId], map: "PublicationRequest_branchId_fkey")
+}
+
+// Enum trạng thái yêu cầu bổ sung ấn phẩm
+enum PublicationRequestStatus {
+  PENDING // Đang chờ duyệt
+  APPROVED // Đã duyệt
+  REJECTED // Đã từ chối
+}
+
 // Model tác giả
 model Author {
   id           Int           @id @default(autoincrement())
@@ -420,29 +493,32 @@ model Language {
 
 // Model thành viên (bạn đọc)
 model Member {
-  id             Int             @id @default(autoincrement())
-  VNeID          String          @unique // ID thành viên, duy nhất
-  email          String          @unique // Email thành viên, duy nhất
-  phone          String          @unique // Số điện thoại thành viên, duy nhất
-  password       String // Mật khẩu
-  branchId       Int? // ID chi nhánh
-  classId        Int? // ID lớp học
-  schoolYearId   Int? // ID niên khóa
-  memGroupId     Int? // ID nhóm thành viên 
-  birthDate      DateTime? // Ngày sinh
-  fullName       String // Họ và tên đầy đủ
-  avatarUrl      String? // URL ảnh đại diện
-  isLocked       Boolean         @default(false) // Trạng thái khóa tài khoản
-  gender         Gender // Giới tính
-  createdAt      DateTime        @default(now()) // Thời gian tạo
-  updatedAt      DateTime        @updatedAt // Thời gian cập nhật cuối
-  borrowings     Borrowing[] // Danh sách các lần mượn sách
-  borrowedItems  Item[] // Danh sách các sách đã mượn
-  branch         Branch?         @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
-  class          Class?          @relation(fields: [classId], references: [id]) // Liên kết với lớp học
-  memberGroup    MemberGroup?    @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
-  schoolYear     SchoolYear?     @relation(fields: [schoolYearId], references: [id]) // Liên kết với niên khóa
-  borrowingSlips BorrowingSlip[] // Danh sách phiếu mượn sách
+  id                  Int                  @id @default(autoincrement())
+  VNeID               String               @unique // ID thành viên, duy nhất
+  email               String               @unique // Email thành viên, duy nhất
+  phone               String               @unique // Số điện thoại thành viên, duy nhất
+  password            String // Mật khẩu
+  branchId            Int? // ID chi nhánh
+  classId             Int? // ID lớp học
+  schoolYearId        Int? // ID niên khóa
+  memGroupId          Int? // ID nhóm thành viên 
+  birthDate           DateTime? // Ngày sinh
+  fullName            String // Họ và tên đầy đủ
+  avatarUrl           String? // URL ảnh đại diện
+  isLocked            Boolean              @default(false) // Trạng thái khóa tài khoản
+  gender              Gender // Giới tính
+  createdAt           DateTime             @default(now()) // Thời gian tạo
+  updatedAt           DateTime             @updatedAt // Thời gian cập nhật cuối
+  borrowings          Borrowing[] // Danh sách các lần mượn sách
+  borrowedItems       Item[] // Danh sách các sách đã mượn
+  branch              Branch?              @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  class               Class?               @relation(fields: [classId], references: [id]) // Liên kết với lớp học
+  memberGroup         MemberGroup?         @relation(fields: [memGroupId], references: [id]) // Liên kết với nhóm thành viên
+  schoolYear          SchoolYear?          @relation(fields: [schoolYearId], references: [id]) // Liên kết với niên khóa
+  borrowingSlips      BorrowingSlip[] // Danh sách phiếu mượn sách
+  publicationRequests PublicationRequest[] // Danh sách yêu cầu bổ sung ấn phẩm
+  lostReports         LostReport[] // Danh sách báo cáo mất ấn phẩm của thành viên
+  returnSlips         ReturnSlip[] // Danh sách phiếu trả sách
 
   @@index([branchId], map: "Member_branchId_fkey")
   @@index([classId], map: "Member_classId_fkey")
@@ -560,6 +636,45 @@ model BorrowingFeePolicy {
   @@index([itemId], map: "BorrowingFeePolicy_itemId_fkey")
 }
 
+// Model báo cáo mất ấn phẩm
+model LostReport {
+  id         Int      @id @default(autoincrement())
+  memberId   Int // ID thành viên báo cáo
+  itemId     Int // ID sách bị mất
+  branchId   Int? // ID chi nhánh
+  reportDate DateTime @default(now()) // Ngày báo cáo
+  note       String? // Ghi chú thêm
+  createdAt  DateTime @default(now()) // Thời gian tạo
+  updatedAt  DateTime @updatedAt // Thời gian cập nhật cuối
+  member     Member   @relation(fields: [memberId], references: [id], onDelete: Cascade) // Liên kết với thành viên
+  item       Item     @relation(fields: [itemId], references: [id], onDelete: Cascade) // Liên kết với sách
+  branch     Branch?  @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+
+  @@index([memberId], map: "LostReport_memberId_fkey")
+  @@index([itemId], map: "LostReport_itemId_fkey")
+  @@index([branchId], map: "LostReport_branchId_fkey")
+}
+
+// Model phiếu trả sách
+model ReturnSlip {
+  id           Int         @id @default(autoincrement())
+  code         String // Mã phiếu trả sách
+  borrowerId   Int // ID người trả sách
+  branchId     Int? // ID chi nhánh
+  returnDate   DateTime    @default(now()) // Ngày trả sách
+  totalLateFee Float       @default(0) // Tổng phí phạt trả trễ
+  note         String? // Ghi chú
+  createdAt    DateTime    @default(now()) // Thời gian tạo
+  updatedAt    DateTime    @updatedAt // Thời gian cập nhật cuối
+  borrower     Member      @relation(fields: [borrowerId], references: [id]) // Liên kết với người trả sách
+  branch       Branch?     @relation(fields: [branchId], references: [id]) // Liên kết với chi nhánh
+  borrowings   Borrowing[] // Danh sách các lần mượn sách được trả
+
+  @@unique([code, branchId])
+  @@index([borrowerId], map: "ReturnSlip_borrowerId_fkey")
+  @@index([branchId], map: "ReturnSlip_branchId_fkey")
+}
+
 enum Gender {
   MALE // Nam
   FEMALE // Nữ
@@ -592,41 +707,6 @@ enum BorrowingStatus {
   BORROWED // Đã mượn
   RETURNED // Đã trả
   OVERDUE // Quá hạn
-}
-
-// Model vai trò
-model Role {
-  id          Int          @id @default(autoincrement())
-  name        String // Tên vai trò
-  code        String       @unique // Mã vai trò, duy nhất
-  color       String? // Màu sắc vai trò
-  description String? // Mô tả vai trò
-  createdAt   DateTime     @default(now()) // Thời gian tạo
-  updatedAt   DateTime     @updatedAt // Thời gian cập nhật cuối
-  settings    Setting[]    @relation("RoleToSetting") // Danh sách cài đặt liên quan
-  users       User[] // Danh sách người dùng có vai trò này
-  permissions Permission[] @relation("PermissionToRole") // Danh sách quyền liên quan
-}
-
-// Model quyền hạn
-model Permission {
-  id          String           @id @unique // ID quyền, duy nhất
-  name        String // Tên quyền
-  description String? // Mô tả quyền
-  permGroupId Int? // ID nhóm quyền 
-  permGroup   PermissionGroup? @relation("PermissionToGroup", fields: [permGroupId], references: [id]) // Liên kết với nhóm quyền
-  roles       Role[]           @relation("PermissionToRole") // Danh sách vai trò có quyền này
-
-  @@index([permGroupId], map: "Permission_groupId_fkey")
-}
-
-// Model nhóm quyền
-model PermissionGroup {
-  id          Int          @id @default(autoincrement())
-  code        String       @unique // Mã nhóm quyền, duy nhất
-  name        String // Tên nhóm quyền
-  description String? // Mô tả nhóm quyền
-  permissions Permission[] @relation("PermissionToGroup") // Danh sách quyền trong nhóm
 }
 
 // Model cài đặt hệ thống

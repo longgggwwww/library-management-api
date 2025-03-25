@@ -24,7 +24,7 @@ import { User } from 'src/auth/types/user.type';
 import { uniqueFilename } from 'utils/file-utils';
 import { AssignBranchDto } from './dto/assign-branch.dto';
 import { AssignRoleDto } from './dto/assign-role.dto';
-import { CreateManyUserDto, CreateUserDto } from './dto/create-user.dto';
+import { CreateUserDto, CreateUsersListDto } from './dto/create-user.dto';
 import { FindUserDto } from './dto/find-user.dto';
 import {
   ChangePwdDto,
@@ -57,7 +57,7 @@ export class UserController {
   }
 
   @Post('batch')
-  createBatch(@Body() dto: CreateManyUserDto) {
+  createBatch(@Body() dto: CreateUsersListDto) {
     return this.user.createBatch(dto);
   }
 

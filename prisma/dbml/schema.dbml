@@ -2,6 +2,36 @@
 //// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 //// ------------------------------------------------------
 
+Table Role {
+  id Int [pk, increment]
+  name String [not null]
+  code String [unique, not null]
+  color String
+  description String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  settings Setting [not null]
+  users User [not null]
+  permissions Permission [not null]
+}
+
+Table Permission {
+  id String [pk]
+  name String [not null]
+  description String
+  permGroupId Int
+  permGroup PermissionGroup
+  roles Role [not null]
+}
+
+Table PermissionGroup {
+  id Int [pk, increment]
+  code String [unique, not null]
+  name String [not null]
+  description String
+  permissions Permission [not null]
+}
+
 Table Branch {
   id Int [pk, increment]
   code String [unique, not null]
@@ -33,6 +63,9 @@ Table Branch {
   schoolYears SchoolYear [not null]
   shelves Shelf [not null]
   users User [not null]
+  publicationRequests PublicationRequest [not null]
+  lostReports LostReport [not null]
+  returnSlips ReturnSlip [not null]
 }
 
 Table User {
@@ -58,6 +91,7 @@ Table User {
   createdItems Item [not null]
   createdPubs Publication [not null]
   createdPublishers Publisher [not null]
+  publicationRequests PublicationRequest [not null]
 }
 
 Table Borrowing {
@@ -70,11 +104,14 @@ Table Borrowing {
   itemId Int [unique, not null]
   status BorrowingStatus [not null, default: 'BORROWED']
   borrowingFee Float [not null]
+  lateFee Float
   borrower Member [not null]
   item Item [not null]
   borrowingSlipId Int
   borrowingSlip BorrowingSlip
   extensions BorrowingExtension [not null]
+  returnSlipId Int
+  returnSlip ReturnSlip
 
   indexes {
     (code, borrowingSlipId) [unique]
@@ -83,8 +120,8 @@ Table Borrowing {
 
 Table BorrowingSlip {
   id Int [pk, increment]
-  note String
   code String [not null]
+  note String
   borrowerId Int [not null]
   branchId Int
   borrowingDate DateTime [not null]
@@ -169,6 +206,7 @@ Table Item {
   publication Publication
   rack Rack
   shelf Shelf
+  lostReports LostReport [not null]
 
   indexes {
     (barcode, branchId) [unique]
@@ -274,6 +312,22 @@ Table PublicationAlias {
   alias String [not null]
   publicationId Int [not null]
   publication Publication [not null]
+}
+
+Table PublicationRequest {
+  id Int [pk, increment]
+  memberId Int [not null]
+  title String [not null]
+  author String
+  status PublicationRequestStatus [not null, default: 'PENDING']
+  note String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  approvedByUserId Int
+  branchId Int
+  member Member [not null]
+  approvedByUser User
+  branch Branch
 }
 
 Table Author {
@@ -399,6 +453,9 @@ Table Member {
   memberGroup MemberGroup
   schoolYear SchoolYear
   borrowingSlips BorrowingSlip [not null]
+  publicationRequests PublicationRequest [not null]
+  lostReports LostReport [not null]
+  returnSlips ReturnSlip [not null]
 }
 
 Table MemberGroup {
@@ -507,40 +564,49 @@ Table BorrowingFeePolicy {
   item Item [not null]
 }
 
-Table Role {
+Table LostReport {
   id Int [pk, increment]
-  name String [not null]
-  code String [unique, not null]
-  color String
-  description String
+  memberId Int [not null]
+  itemId Int [not null]
+  branchId Int
+  reportDate DateTime [default: `now()`, not null]
+  note String
   createdAt DateTime [default: `now()`, not null]
   updatedAt DateTime [not null]
-  settings Setting [not null]
-  users User [not null]
-  permissions Permission [not null]
+  member Member [not null]
+  item Item [not null]
+  branch Branch
 }
 
-Table Permission {
-  id String [pk]
-  name String [not null]
-  description String
-  permGroupId Int
-  permGroup PermissionGroup
-  roles Role [not null]
-}
-
-Table PermissionGroup {
+Table ReturnSlip {
   id Int [pk, increment]
-  code String [unique, not null]
-  name String [not null]
-  description String
-  permissions Permission [not null]
+  code String [not null]
+  borrowerId Int [not null]
+  branchId Int
+  returnDate DateTime [default: `now()`, not null]
+  totalLateFee Float [not null, default: 0]
+  note String
+  createdAt DateTime [default: `now()`, not null]
+  updatedAt DateTime [not null]
+  borrower Member [not null]
+  branch Branch
+  borrowings Borrowing [not null]
+
+  indexes {
+    (code, branchId) [unique]
+  }
 }
 
 Table Setting {
   id Int [pk, increment]
   defaultUserRoleId Int
   defaultUserRole Role
+  isPenaltyFeeEnabled Boolean [not null, default: true]
+}
+
+Table PermissionToRole {
+  permissionsId String [ref: > Permission.id]
+  rolesId Int [ref: > Role.id]
 }
 
 Table AuthorToPublication {
@@ -563,9 +629,10 @@ Table PublicationToCategory {
   publicationsId Int [ref: > Publication.id]
 }
 
-Table PermissionToRole {
-  permissionsId String [ref: > Permission.id]
-  rolesId Int [ref: > Role.id]
+Enum PublicationRequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
 
 Enum Gender {
@@ -599,6 +666,8 @@ Enum BorrowingStatus {
   OVERDUE
 }
 
+Ref: Permission.permGroupId > PermissionGroup.id
+
 Ref: User.branchId > Branch.id
 
 Ref: User.roleId > Role.id
@@ -608,6 +677,8 @@ Ref: Borrowing.borrowerId > Member.id
 Ref: Borrowing.itemId - Item.id
 
 Ref: Borrowing.borrowingSlipId > BorrowingSlip.id [delete: Cascade]
+
+Ref: Borrowing.returnSlipId > ReturnSlip.id [delete: Cascade]
 
 Ref: BorrowingSlip.borrowerId > Member.id
 
@@ -657,6 +728,12 @@ Ref: Publication.publisherId > Publisher.id
 
 Ref: PublicationAlias.publicationId > Publication.id [delete: Cascade]
 
+Ref: PublicationRequest.memberId > Member.id
+
+Ref: PublicationRequest.approvedByUserId > User.id
+
+Ref: PublicationRequest.branchId > Branch.id
+
 Ref: Author.branchId > Branch.id
 
 Ref: Publisher.branchId > Branch.id
@@ -697,6 +774,14 @@ Ref: Rack.shelfId > Shelf.id
 
 Ref: BorrowingFeePolicy.itemId - Item.id [delete: Cascade]
 
-Ref: Permission.permGroupId > PermissionGroup.id
+Ref: LostReport.memberId > Member.id [delete: Cascade]
+
+Ref: LostReport.itemId > Item.id [delete: Cascade]
+
+Ref: LostReport.branchId > Branch.id
+
+Ref: ReturnSlip.borrowerId > Member.id
+
+Ref: ReturnSlip.branchId > Branch.id
 
 Ref: Setting.defaultUserRoleId > Role.id

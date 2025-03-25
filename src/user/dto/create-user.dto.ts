@@ -8,29 +8,23 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
-  MaxLength,
   ValidateNested,
 } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @MaxLength(50)
   username: string;
 
   @IsString()
-  @MaxLength(100)
   password: string;
 
   @IsString()
-  @MaxLength(100)
   fullName: string;
 
   @IsEmail()
-  @MaxLength(100)
   email: string;
 
   @IsPhoneNumber('VN')
-  @MaxLength(15)
   phone: string;
 
   @IsInt()
@@ -43,16 +37,14 @@ export class CreateUserDto {
 
   @IsDate()
   @IsOptional()
-  dob?: Date;
+  birthDate?: Date;
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
   address?: string;
 
   @IsOptional()
   @IsString()
-  @MaxLength(255)
   note?: string;
 
   @IsOptional()
@@ -60,7 +52,7 @@ export class CreateUserDto {
   active?: boolean;
 }
 
-export class CreateManyUserDto {
+export class CreateUsersListDto {
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CreateUserDto)

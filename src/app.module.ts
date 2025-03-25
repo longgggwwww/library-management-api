@@ -8,11 +8,13 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { TokenAuthGuard } from './auth/jwt-auth.guard';
 import { AuthorModule } from './author/author.module';
+import { BorrowingFeePolicyModule } from './borrowing-fee-policy/borrowing-fee-policy.module';
+import { BorrowingPolicyModule } from './borrowing-policy/borrowing-policy.module';
 import { BorrowingModule } from './borrowing/borrowing.module';
 import { BranchModule } from './branch/branch.module';
 import { CategoryModule } from './category/category.module';
 import { ClassModule } from './class/class.module';
-import { throttleLimit, throttleTTL } from './common/constants/env-keys';
+import { throttle } from './common/constants/env-keys';
 import { CUSTOM_PRISMA_CLIENT } from './common/constants/inject-tokens';
 import { ApiKeyAuthGuard } from './common/guards/api-key-auth.guard';
 import { ExtendedPrismaConfigService } from './custom-prisma/custom-prisma.service';
@@ -26,16 +28,16 @@ import { MemberModule } from './member/member.module';
 import { PermGroupModule } from './perm-group/perm-group.module';
 import { AuthorizationGuard } from './permission/permission.guard';
 import { PermModule } from './permission/permission.module';
+import { PublicationRequestModule } from './publication-request/publication-request.module';
 import { PublicationModule } from './publication/publication.module';
 import { PublisherModule } from './publisher/publisher.module';
+import { RackModule } from './rack/rack.module';
+import { ReturnSlipModule } from './return-slip/return-slip.module';
 import { RoleModule } from './role/role.module';
 import { SchoolYearModule } from './school-year/school-year.module';
 import { SettingModule } from './setting/setting.module';
-import { UserModule } from './user/user.module';
-import { BorrowingFeePolicyModule } from './borrowing-fee-policy/borrowing-fee-policy.module';
-import { BorrowingPolicyModule } from './borrowing-policy/borrowing-policy.module';
 import { ShelfModule } from './shelf/shelf.module';
-import { RackModule } from './rack/rack.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -43,8 +45,8 @@ import { RackModule } from './rack/rack.module';
     ThrottlerModule.forRoot({
       throttlers: [
         {
-          ttl: throttleTTL,
-          limit: throttleLimit,
+          ttl: throttle.ttl,
+          limit: throttle.limit,
         },
       ],
     }),
@@ -80,6 +82,8 @@ import { RackModule } from './rack/rack.module';
     BorrowingPolicyModule,
     ShelfModule,
     RackModule,
+    PublicationRequestModule,
+    ReturnSlipModule,
   ],
   controllers: [AppController],
   providers: [

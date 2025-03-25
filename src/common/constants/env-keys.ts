@@ -3,26 +3,39 @@ import * as dotenv from 'dotenv';
 // Load file .env
 dotenv.config();
 
-// Tạo một đối tượng cấu hình
-
-// Lấy các giá trị từ biến môi trường
+// Tạo cấu hình nhóm
 export const nodeEnv = process.env.NODE_ENV || 'development';
 export const port = parseInt(process.env.PORT) || 3000;
+
 export const apiKey = process.env.API_KEY;
-export const accessTokenSecret = process.env.ACCESS_TOKEN_SECRET;
-export const accessTokenTTL = process.env.ACCESS_TOKEN_TTL || '15m';
-export const refreshTokenSecret = process.env.REFRESH_TOKEN_SECRET;
-export const refreshTokenTTL = process.env.REFRESH_TOKEN_TTL || '7d';
-export const memberAccessTokenSecret =
-  process.env.ACCESS_TOKEN_SECRET_FOR_MEMBER;
-export const memberAccessTokenTTL =
-  process.env.ACCESS_TOKEN_TTL_FOR_MEMBER || '1d';
-export const memberRefreshTokenSecret =
-  process.env.REFRESH_TOKEN_SECRET_FOR_MEMBER;
-export const memberRefreshTokenTTL =
-  process.env.REFRESH_TOKEN_TTL_FOR_MEMBER || '30d';
-export const throttleTTL = parseInt(process.env.THROTTLE_TTL) || 60;
-export const throttleLimit = parseInt(process.env.THROTTLE_LIMIT) || 10;
+
+export const tokens = {
+  user: {
+    accessToken: {
+      secret: process.env.ACCESS_TOKEN_SECRET,
+      ttl: process.env.ACCESS_TOKEN_TTL || '15m',
+    },
+    refreshToken: {
+      secret: process.env.REFRESH_TOKEN_SECRET,
+      ttl: process.env.REFRESH_TOKEN_TTL || '7d',
+    },
+  },
+  member: {
+    accessToken: {
+      secret: process.env.ACCESS_TOKEN_SECRET_FOR_MEMBER,
+      ttl: process.env.ACCESS_TOKEN_TTL_FOR_MEMBER || '1d',
+    },
+    refreshToken: {
+      secret: process.env.REFRESH_TOKEN_SECRET_FOR_MEMBER,
+      ttl: process.env.REFRESH_TOKEN_TTL_FOR_MEMBER || '30d',
+    },
+  },
+};
+
+export const throttle = {
+  ttl: parseInt(process.env.THROTTLE_TTL) || 60,
+  limit: parseInt(process.env.THROTTLE_LIMIT) || 10,
+};
 
 console.log('nodeEnv:', nodeEnv);
 
@@ -32,16 +45,16 @@ function validateEnvVar() {
   if (!apiKey) {
     throw new Error('API_KEY must be provided');
   }
-  if (!accessTokenSecret) {
-    throw new Error('ACCESS_TOKEN_SECRET must be provided');
+  if (!tokens.user.accessToken.secret) {
+    throw new Error('USER_ACCESS_TOKEN_SECRET must be provided');
   }
-  if (!refreshTokenSecret) {
-    throw new Error('REFRESH_TOKEN_SECRET must be provided');
+  if (!tokens.user.refreshToken.secret) {
+    throw new Error('USER_REFRESH_TOKEN_SECRET must be provided');
   }
-  if (!memberAccessTokenSecret) {
+  if (!tokens.member.accessToken.secret) {
     throw new Error('MEMBER_ACCESS_TOKEN_SECRET must be provided');
   }
-  if (!memberRefreshTokenSecret) {
+  if (!tokens.member.refreshToken.secret) {
     throw new Error('MEMBER_REFRESH_TOKEN_SECRET must be provided');
   }
 }
